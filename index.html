@@ -4,34 +4,69 @@
   <title>Find My Roomie</title>
 </head>
 <body>
-  <h2>Find Your Roommate</h2>
-  <form id="roomForm">
-    <input type="text" id="room" placeholder="Enter Room Number" required><br>
-    <input type="email" id="email" placeholder="Enter Your Email" required><br>
-    <button type="submit">Check Roommates</button>
+  <h2>Find My Roomie</h2>
+  <form id="roomieForm">
+    <input type="text" id="room" placeholder="Room Number" required />
+    <input type="email" id="email" placeholder="Your Email" required />
+    <button type="submit">Search</button>
   </form>
 
   <div id="result"></div>
 
   <script>
-    const form = document.getElementById("roomForm");
-    form.addEventListener("submit", async (e) => {
+    const form = document.getElementById('roomieForm');
+    const result = document.getElementById('result');
+
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const room = document.getElementById("room").value.trim();
-      const email = document.getElementById("email").value.trim();
 
-      const url = `https://script.google.com/macros/s/AKfycbzjYfAQdtGQHEBA6wsHNv1kLXPHYkloTDTOcyP7pDplDs2rD7Czd_xz-r1Sj-8SuhYU/exec?room=${encodeURIComponent(room)}&email=${encodeURIComponent(email)}`;
+      const room = document.getElementById('room').value.trim();
+      const email = document.getElementById('email').value.trim().toLowerCase();
 
-      const res = await fetch(url);
-      const data = await res.json();
+      // ✅ Replace with your public CSV link (publish spreadsheet to web)
+      const sheetCSVUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQz9ikcxFe9easGxY2MJLV7RHoSW8Jcbq0o8ZII-ZJTYvanZCGIDGGZNApsCwAGGwXehCoC_soUbu8W/pub?output=csv';
+      const proxyURL = `https://api.allorigins.win/get?url=${encodeURIComponent(sheetCSVUrl)}`;
 
-      const resultDiv = document.getElementById("result");
-      if (data.success) {
-        resultDiv.innerHTML = "<h3>Your Roommates:</h3>" + data.data.map(p =>
-          `<p><strong>${p.name}</strong> | ${p.email} | ${p.insta} | ${p.hostel}</p>`
-        ).join("");
-      } else {
-        resultDiv.innerHTML = `<p style="color:red;">${data.message}</p>`;
+      try {
+        const res = await fetch(proxyURL);
+        const data = await res.json();
+        const csv = data.contents;
+
+        const rows = csv.split('\n').map(row => row.split(',').map(col => col.trim()));
+        const headers = rows[0];
+        const matches = [];
+
+        let userFoundInRoom = false;
+
+        for (let i = 1; i < rows.length; i++) {
+          const row = rows[i];
+          const rowRoom = row[1]?.trim();
+          const rowEmail = row[3]?.toLowerCase().trim();
+
+          if (rowRoom === room) {
+            matches.push({
+              name: row[2],
+              email: row[3],
+              insta: row[4],
+              hostel: row[5],
+            });
+
+            if (rowEmail === email) {
+              userFoundInRoom = true;
+            }
+          }
+        }
+
+        if (userFoundInRoom) {
+          result.innerHTML = `<h3>Roommates:</h3><ul>` +
+            matches.map(m => `<li><strong>${m.name}</strong> (${m.email})<br>Insta: ${m.insta}<br>Hostel: ${m.hostel}</li>`).join('') +
+            `</ul>`;
+        } else {
+          result.innerHTML = `<p style="color:red;">You're not registered for this room.</p>`;
+        }
+      } catch (err) {
+        result.textContent = 'Error fetching data.';
+        console.error(err);
       }
     });
   </script>
