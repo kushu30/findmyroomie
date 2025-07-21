@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Find Your Roommate</title>
+</head>
+<body>
+  <h2>Roommate Finder</h2>
+  <form id="roommateForm">
+    <input type="email" placeholder="Your Email" id="email" required><br>
+    <input type="text" placeholder="Instagram ID" id="insta" required><br>
+    <button type="submit">Find Roommate</button>
+  </form>
+
+  <div id="result"></div>
+
+  <script>
+    document.getElementById("roommateForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value;
+      const insta = document.getElementById("insta").value;
+
+      fetch('https://script.google.com/macros/s/AKfycbyA5e2EFb2CUZctzUXgGzlyG1CHpMcOel-_J81ZjPAmIWX6rowoaWMnfTpfQqDw8Zj2/exec', {
+        method: 'POST',
+        body: JSON.stringify({ email, insta }),
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if(data.success){
+          const r = data.roommate;
+          document.getElementById("result").innerHTML = `
+            <h3>Your Roommate</h3>
+            <p><strong>Name:</strong> ${r.name}</p>
+            <p><strong>Email:</strong> ${r.email}</p>
+            <p><strong>Instagram:</strong> ${r.insta}</p>
+            <p><strong>Hostel:</strong> ${r.hostel}</p>
+          `;
+        } else {
+          document.getElementById("result").innerText = data.message;
+        }
+      })
+      .catch(err => console.error(err));
+    });
+  </script>
+</body>
+</html>
