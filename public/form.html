@@ -97,7 +97,7 @@ If neither is provided, your email will be shown by default. Phone numbers are <
       const data = Object.fromEntries(formData.entries());
 
       try {
-        const response = await fetch('/submit', {
+        const response = await fetch('https://findmyroomie-production.up.railway.app/api/submit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)

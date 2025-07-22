@@ -92,7 +92,7 @@
       result.innerHTML = '<p style="color:#666;">Searching for roommates...</p>';
 
       try {
-        const response = await fetch('/lookup', {
+        const response = await fetch('https://findmyroomie-production.up.railway.app/api/lookup', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify(formData)
