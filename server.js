@@ -3,14 +3,20 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
-require('dotenv').config();
+require('dotenv').config(); // For local dev only
 
 // Init Express
 const app = express();
 const PORT = process.env.PORT || 3000;
 const mongoURI = process.env.MONGODB_URI;
 
-// Allow CORS (Allow Netlify frontend or all for dev)
+// 🔍 Check for required env variable
+if (!mongoURI) {
+    console.error('❌ MONGODB_URI is missing. Set it in your Vercel or .env configuration.');
+    process.exit(1);
+}
+
+// Allow CORS
 app.use(cors({
     origin: process.env.ALLOWED_ORIGIN || '*'
 }));
@@ -18,15 +24,18 @@ app.use(cors({
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// MongoDB Connection
+// ✅ MongoDB Connection
 mongoose.connect(mongoURI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
 .then(() => console.log('✅ MongoDB connected successfully'))
-.catch(err => console.error('❌ MongoDB connection error:', err));
+.catch(err => {
+    console.error('❌ MongoDB connection error:', err);
+    process.exit(1); // Exit if DB can't connect
+});
 
-// Schema
+// 📘 Schema
 const roommateSchema = new mongoose.Schema({
     name: { type: String, required: true, trim: true },
     email: { 
@@ -46,9 +55,9 @@ roommateSchema.index({ hostelType: 1, hostel: 1, room: 1 });
 
 const Roommate = mongoose.model('Roommate', roommateSchema);
 
-// 🌐 API ROUTES (recommended to prefix with /api)
+// 🔽 ROUTES
 
-// ➕ Submit roommate registration
+// ➕ Register roommate
 app.post('/api/submit', async (req, res) => {
     const { name, email, branch, hostelType, hostel, room, instagram } = req.body;
 
@@ -206,7 +215,7 @@ app.delete('/api/admin/clear', async (req, res) => {
     }
 });
 
-// Start the server
+// 🚀 Start server
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
 });
