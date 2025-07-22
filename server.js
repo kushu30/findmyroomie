@@ -10,7 +10,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const mongoURI = process.env.MONGODB_URI;
 
-// Allow CORS from Netlify or all (temporary)
+// Allow CORS (Allow Netlify frontend or all for dev)
 app.use(cors({
     origin: process.env.ALLOWED_ORIGIN || '*'
 }));
@@ -19,7 +19,7 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI, {
+mongoose.connect(mongoURI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
@@ -46,10 +46,10 @@ roommateSchema.index({ hostelType: 1, hostel: 1, room: 1 });
 
 const Roommate = mongoose.model('Roommate', roommateSchema);
 
-// Routes
+// 🌐 API ROUTES (recommended to prefix with /api)
 
 // ➕ Submit roommate registration
-app.post('/submit', async (req, res) => {
+app.post('/api/submit', async (req, res) => {
     const { name, email, branch, hostelType, hostel, room, instagram } = req.body;
 
     if (!name || !email || !branch || !hostelType || !hostel || !room) {
@@ -95,7 +95,7 @@ app.post('/submit', async (req, res) => {
         });
 
     } catch (err) {
-        console.error('Error in /submit:', err);
+        console.error('Error in /api/submit:', err);
         return res.status(500).json({
             success: false,
             message: 'Server error while registering.'
@@ -104,7 +104,7 @@ app.post('/submit', async (req, res) => {
 });
 
 // 🔍 Lookup roommates
-app.post('/lookup', async (req, res) => {
+app.post('/api/lookup', async (req, res) => {
     const { name, email, branch, hostelType, hostel, room } = req.body;
 
     if (!name || !email || !branch || !hostelType || !hostel || !room) {
@@ -165,7 +165,7 @@ app.post('/lookup', async (req, res) => {
         });
 
     } catch (err) {
-        console.error('Error in /lookup:', err);
+        console.error('Error in /api/lookup:', err);
         return res.status(500).json({
             success: false,
             message: 'Server error during roommate lookup.'
@@ -174,7 +174,7 @@ app.post('/lookup', async (req, res) => {
 });
 
 // 🛠 Admin - Get all registrations
-app.get('/admin/registrations', async (req, res) => {
+app.get('/api/admin/registrations', async (req, res) => {
     try {
         const registrations = await Roommate.find().sort({ registeredAt: -1 });
         res.json({
@@ -191,7 +191,7 @@ app.get('/admin/registrations', async (req, res) => {
 });
 
 // 🗑 Admin - Clear all registrations
-app.delete('/admin/clear', async (req, res) => {
+app.delete('/api/admin/clear', async (req, res) => {
     try {
         await Roommate.deleteMany({});
         res.json({
