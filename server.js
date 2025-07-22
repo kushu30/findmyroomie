@@ -5,29 +5,32 @@ const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
 
+// Init Express
 const app = express();
 const PORT = process.env.PORT || 3000;
-
 const mongoURI = process.env.MONGODB_URI;
 
-mongoose.connect(mongoURI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
-.then(() => console.log('MongoDB connected successfully'))
-.catch((err) => console.error('MongoDB connection error:', err));
+// Allow CORS from Netlify or all (temporary)
+app.use(cors({
+    origin: process.env.ALLOWED_ORIGIN || '*'
+}));
 
-app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// MongoDB Connection
+mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then(() => console.log('✅ MongoDB connected successfully'))
+.catch(err => console.error('❌ MongoDB connection error:', err));
+
+// Schema
 const roommateSchema = new mongoose.Schema({
     name: { type: String, required: true, trim: true },
     email: { 
-        type: String, 
-        required: true, 
-        trim: true, 
-        lowercase: true,
+        type: String, required: true, trim: true, lowercase: true,
         match: [/\S+@\S+\.\S+/, 'is invalid'] 
     },
     branch: { type: String, required: true, trim: true, uppercase: true },
@@ -43,6 +46,9 @@ roommateSchema.index({ hostelType: 1, hostel: 1, room: 1 });
 
 const Roommate = mongoose.model('Roommate', roommateSchema);
 
+// Routes
+
+// ➕ Submit roommate registration
 app.post('/submit', async (req, res) => {
     const { name, email, branch, hostelType, hostel, room, instagram } = req.body;
 
@@ -97,6 +103,7 @@ app.post('/submit', async (req, res) => {
     }
 });
 
+// 🔍 Lookup roommates
 app.post('/lookup', async (req, res) => {
     const { name, email, branch, hostelType, hostel, room } = req.body;
 
@@ -166,6 +173,7 @@ app.post('/lookup', async (req, res) => {
     }
 });
 
+// 🛠 Admin - Get all registrations
 app.get('/admin/registrations', async (req, res) => {
     try {
         const registrations = await Roommate.find().sort({ registeredAt: -1 });
@@ -182,6 +190,7 @@ app.get('/admin/registrations', async (req, res) => {
     }
 });
 
+// 🗑 Admin - Clear all registrations
 app.delete('/admin/clear', async (req, res) => {
     try {
         await Roommate.deleteMany({});
@@ -197,6 +206,7 @@ app.delete('/admin/clear', async (req, res) => {
     }
 });
 
+// Start the server
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`🚀 Server running on port ${PORT}`);
 });
