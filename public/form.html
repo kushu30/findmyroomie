@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FindMyRoomie - Register</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Register Your Room Details</h1>
+
+    <form id="roomieForm">
+      <input type="text" name="name" placeholder="Full Name" required />
+      <input type="email" name="email" placeholder="Email Address" required />
+      <input type="text" name="branch" placeholder="Branch (Case and space sensitive!)" required />
+
+      <select name="hostelType" id="hostelType" required>
+        <option value="" disabled selected>Select Hostel Type</option>
+        <option value="boys">Boys</option>
+        <option value="girls">Girls</option>
+      </select>
+
+      <select name="hostel" id="hostel" required>
+        <option value="">-- Select Hostel --</option>
+      </select>
+
+      <input type="text" name="room" placeholder="Room Number" required />
+      <input type="text" name="instagram" placeholder="Instagram ID (recommended) / discord / phone (read note)"
+ />
+ <div style="background-color: #fff3cd; color: #000000; padding: 10px; border: 1px solid #ffeeba; border-radius: 5px; margin-bottom: 10px;">
+<strong>Note:</strong> Please enter your details accurately. Once submitted, they can't be edited. <br><br>
+Instagram ID is optional but recommended. If you don't use Instagram, you can provide your Discord ID in this format: <code>discord(yourUsername)</code>.<br><br>
+If neither is provided, your email will be shown by default. Phone numbers are <strong>not recommended</strong> as we value your privacy—but you may add them if you’re comfortable.
+
+  </div>
+      <button type="submit">Submit</button>
+    </form>
+
+    <p id="statusMessage"></p>
+  </div>
+
+<script>
+    const hostelData = {
+      girls: [
+        "Kalpana Chawla: AC with attached washroom - 4 sharing",
+        "Kalpana Chawla: AC with attached washroom - 4 sharing (Bunker Cot)",
+        "Meenakshi: AC with attached washroom - 4 sharing (Bunker Cot)",
+        "Meenakshi: Non-AC with attached washroom - 3 sharing",
+        "Thamarai: Non-AC with common washroom - 2 sharing",
+        "Malligai: Non-AC with common washroom - 2 sharing",
+        "Senbagam: Non-AC with common washroom - 3 sharing",
+        "Senbagam: Non-AC with common washroom - 6 sharing"
+      ],
+      boys: [
+        "Premium Boys: AC with attached washroom - 3 sharing",
+        "Green Pearl (Off-Campus): AC with attached washroom - 3 sharing",
+        "Green Pearl (Off-Campus): Non-AC with attached washroom - 3 sharing",
+        "Adhiyaman: AC with attached washroom - 2 sharing",
+        "Adhiyaman: AC with attached washroom - 3 sharing",
+        "Adhiyaman: AC with attached washroom - 4 sharing",
+        "Adhiyaman: Non-AC with attached washroom - 3 sharing",
+        "Agasthiyar: AC with attached washroom - 4 sharing",
+        "Began: AC with common washroom - 3 sharing",
+        "Began: Non-AC with common washroom - 2 sharing",
+        "Oori: AC with common washroom - 4 & 5 sharing",
+        "N Block: Non-AC with attached washroom - 2 sharing",
+        "N Block: Non-AC with attached washroom - 3 sharing",
+        "Mullai: Non-AC with common washroom - 3 sharing",
+        "Paari: Non-AC with common washroom - 4 & 5 sharing"
+      ]
+    };
+
+    const form = document.getElementById('roomieForm');
+    const statusMsg = document.getElementById('statusMessage');
+    const hostelTypeSelect = document.getElementById("hostelType");
+    const hostelDropdown = document.getElementById("hostel");
+
+    hostelTypeSelect.addEventListener("change", function () {
+      const selectedType = this.value;
+      hostelDropdown.innerHTML = `<option value="">-- Select Hostel --</option>`;
+
+      if (selectedType && hostelData[selectedType]) {
+        hostelData[selectedType].forEach(hostel => {
+          const option = document.createElement("option");
+          option.value = hostel;
+          option.textContent = hostel;
+          hostelDropdown.appendChild(option);
+        });
+      }
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+
+      try {
+        const response = await fetch('/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        statusMsg.textContent = result.message;
+        statusMsg.style.color = 'green';
+        form.reset();
+        
+        hostelDropdown.innerHTML = `<option value="">-- Select Hostel --</option>`;
+      } catch (error) {
+        statusMsg.textContent = 'Something went wrong. Try again!';
+        statusMsg.style.color = 'red';
+        console.error('Error:', error);
+      }
+    });
+  </script>
+</body>
+</html>

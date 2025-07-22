@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FindMyRoomie - Find Your Roommate</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Find Your Roommate</h1>
+
+    <form id="lookupForm">
+  <input type="text" name="name" placeholder="Your Full Name" required />
+  <input type="email" name="email" placeholder="Your Email" required />
+  <input type="text" name="branch" placeholder="Your Branch" required />
+
+  <select name="hostelType" id="hostelType" required>
+    <option value="" disabled selected>Select Hostel Type</option>
+    <option value="boys">Boys</option>
+    <option value="girls">Girls</option>
+  </select>
+
+  <select name="hostel" id="hostel" required>
+    <option value="">-- Select Hostel --</option>
+  </select>
+
+  <input type="text" name="room" placeholder="Room Number" required />
+
+  <div style="background-color: #fff3cd; color: #000000; padding: 10px; border: 1px solid #ffeeba; border-radius: 5px; margin-bottom: 10px;">
+    <strong>Note:</strong> Please fill in your details carefully. Incorrect or fake information may result in an error, and you won't be able to view your roommates. This is to prevent spoofing and ensure authenticity.
+  </div>
+
+  <button type="submit">Find Roommate</button>
+</form>
+
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const hostelData = {
+      girls: [
+        "Kalpana Chawla: AC with attached washroom - 4 sharing",
+        "Kalpana Chawla: AC with attached washroom - 4 sharing (Bunker Cot)",
+        "Meenakshi: AC with attached washroom - 4 sharing (Bunker Cot)",
+        "Meenakshi: Non-AC with attached washroom - 3 sharing",
+        "Thamarai: Non-AC with common washroom - 2 sharing",
+        "Malligai: Non-AC with common washroom - 2 sharing",
+        "Senbagam: Non-AC with common washroom - 3 sharing",
+        "Senbagam: Non-AC with common washroom - 6 sharing"
+      ],
+      boys: [
+        "Premium Boys: AC with attached washroom - 3 sharing",
+        "Green Pearl (Off-Campus): AC with attached washroom - 3 sharing",
+        "Green Pearl (Off-Campus): Non-AC with attached washroom - 3 sharing",
+        "Adhiyaman: AC with attached washroom - 2 sharing",
+        "Adhiyaman: AC with attached washroom - 3 sharing",
+        "Adhiyaman: AC with attached washroom - 4 sharing",
+        "Adhiyaman: Non-AC with attached washroom - 3 sharing",
+        "Agasthiyar: AC with attached washroom - 4 sharing",
+        "Began: AC with common washroom - 3 sharing",
+        "Began: Non-AC with common washroom - 2 sharing",
+        "Oori: AC with common washroom - 4 & 5 sharing",
+        "N Block: Non-AC with attached washroom - 2 sharing",
+        "N Block: Non-AC with attached washroom - 3 sharing",
+        "Mullai: Non-AC with common washroom - 3 sharing",
+        "Paari: Non-AC with common washroom - 4 & 5 sharing"
+      ]
+    };
+
+    const form = document.getElementById('lookupForm');
+    const result = document.getElementById('result');
+    const hostelTypeSelect = document.getElementById('hostelType');
+    const hostelDropdown = document.getElementById('hostel');
+
+    hostelTypeSelect.addEventListener('change', () => {
+      const selectedType = hostelTypeSelect.value;
+      hostelDropdown.innerHTML = '<option value="">-- Select Hostel --</option>';
+      if (hostelData[selectedType]) {
+        hostelData[selectedType].forEach(h => {
+          const opt = document.createElement('option');
+          opt.value = h;
+          opt.textContent = h;
+          hostelDropdown.appendChild(opt);
+        });
+      }
+    });
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const formData = Object.fromEntries(new FormData(form).entries());
+      result.innerHTML = '<p style="color:#666;">Searching for roommates...</p>';
+
+      try {
+        const response = await fetch('/lookup', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(formData)
+        });
+        const data = await response.json();
+
+        // Combine single or multiple roommates into array
+        let roommates = [];
+        if (Array.isArray(data.roommates)) {
+          roommates = data.roommates;
+        } else if (data.roommate) {
+          roommates = [data.roommate];
+        }
+
+        if (data.success && roommates.length > 0) {
+          let html = '<div style="margin-top:10px;">';
+          roommates.forEach(rm => {
+            html += '<div style="background:#d4edda;padding:15px;border-radius:8px;border:1px solid #c3e6cb;color:#155724;margin-bottom:10px;">';
+            html += `<h3 style="margin:0 0 10px 0;">Roommate Found!</h3>`;
+            html += `<p><strong>Name:</strong> ${rm.name}</p>`;
+            html += `<p><strong>Branch:</strong> ${rm.branch}</p>`;
+            html += (rm.instagram) ? `<p><strong>Instagram:</strong> @${rm.instagram}</p>` : `<p><strong>Email:</strong> <a href="mailto:${rm.email}">${rm.email}</a></p>`;
+            html += '</div>';
+          });
+          html += '</div>';
+          result.innerHTML = html;
+        } else {
+          result.innerHTML = `<div style="background:#f8d7da;padding:15px;border-radius:8px;border:1px solid #f5c6cb;color:#721c24;margin-top:10px;"><p><strong>${data.message || 'No roommates found.'}</strong></p></div>`;
+        }
+      } catch (err) {
+        console.error('Lookup error:', err);
+        result.innerHTML = `<div style="background:#f8d7da;padding:15px;border-radius:8px;border:1px solid #f5c6cb;color:#721c24;margin-top:10px;"><p><strong>Something went wrong. Please try again.</strong></p></div>`;
+      }
+    });
+  </script>
+</body>
+</html>
