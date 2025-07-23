@@ -8,7 +8,7 @@
 </head>
 <body>
   <div class="container">
-    <h1>Register Your Room Details</h1>
+    <h1>Register Your Details</h1>
 
     <form id="roomieForm">
       <input type="text" name="name" placeholder="Full Name" required />
@@ -26,21 +26,26 @@
       </select>
 
       <input type="text" name="room" placeholder="Room Number" required />
-      <input type="text" name="instagram" placeholder="Instagram ID (recommended) / discord / phone (read note)"
- />
- <div style="background-color: #fff3cd; color: #000000; padding: 10px; border: 1px solid #ffeeba; border-radius: 5px; margin-bottom: 10px;">
-<strong>Note:</strong> Please enter your details accurately. Once submitted, they can't be edited. <br><br>
-Instagram ID is optional but recommended. If you don't use Instagram, you can provide your Discord ID in this format: <code>discord(yourUsername)</code>.<br><br>
-If neither is provided, your email will be shown by default. Phone numbers are <strong>not recommended</strong> as we value your privacy—but you may add them if you’re comfortable.
-
-  </div>
+      <input type="text" name="instagram" placeholder="Instagram ID (recommended) / discord / phone (read note)" />
+      
+      <div style="background-color: #fff3cd; color: #000000; padding: 10px; border: 1px solid #ffeeba; border-radius: 5px; margin-bottom: 10px;">
+        <strong>Note:</strong> Please enter your details accurately. Once submitted, they can't be edited. <br><br>
+        Instagram ID is optional but recommended. If you don't use Instagram, you can provide your Discord ID in this format: <code>discord(yourUsername)</code>.<br><br>
+        If neither is provided, your email will be shown by default. Phone numbers are <strong>not recommended</strong> as we value your privacy—but you may add them if you're comfortable.
+      </div>
+      
       <button type="submit">Submit</button>
     </form>
 
     <p id="statusMessage"></p>
+    
+    <p style="text-align: center; margin-top: 20px;">
+      Already registered? <a href="lookup.html">Go to Lookup</a>
+    </p>
+
   </div>
 
-<script>
+  <script>
     const hostelData = {
       girls: [
         "Kalpana Chawla: AC with attached washroom - 4 sharing",

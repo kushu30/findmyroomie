@@ -3,485 +3,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="indexstyle.css">
+
   <title>FindMyRoomie</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #fafafa;
-      color: #1a1a1a;
-      line-height: 1.6;
-      overflow-x: hidden;
-      position: relative;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-    
-    body::before,
-    body::after,
-    .container::before,
-    .container::after {
-      content: "";
-      position: fixed;
-      width: 400px;
-      height: 400px;
-      border-radius: 50%;
-      z-index: -1;
-      filter: blur(100px);
-      opacity: 0.5;
-      will-change: filter;
-    }
-
-    body::before {
-      top: -200px;
-      left: -200px;
-      background: #8aa0f8;
-    }
-
-    .container::before {
-      top: -200px;
-      right: -200px;
-      background: #ec7684;
-    }
-
-    .container::after {
-      bottom: -200px;
-      left: -200px;
-      background: #ec7684;
-    }
-
-    body::after {
-      bottom: -200px;
-      right: -200px;
-      background: #8aa0f8;
-    }
-
-    .container {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 2rem;
-      position: relative;
-      z-index: 1;
-    }
-
-    header {
-      padding: 2rem 0;
-      text-align: center;
-    }
-
-    .logo {
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: #374151;
-      letter-spacing: -0.025em;
-    }
-
-    .logo-icon {
-      margin-right: 0.5rem;
-      font-size: 1.8rem;
-      vertical-align: middle;
-    }
-
-    main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 4rem 0;
-    }
-
-    .hero {
-      max-width: 600px;
-      margin-bottom: 4rem;
-    }
-
-    .hero h1 {
-      font-size: clamp(2.5rem, 6vw, 4rem);
-      font-weight: 700;
-      color: #111827;
-      margin-bottom: 1.5rem;
-      letter-spacing: -0.05em;
-      line-height: 1.1;
-    }
-
-    .hero p {
-      font-size: 1.25rem;
-      color: #6b7280;
-      font-weight: 300;
-      margin-bottom: 3rem;
-      opacity: 0;
-      animation: fadeInUp 0.8s ease 0.3s forwards;
-    }
-
-    .cta-buttons {
-      display: flex;
-      gap: 1rem;
-      justify-content: center;
-      flex-wrap: wrap;
-      opacity: 0;
-      animation: fadeInUp 0.8s ease 0.6s forwards;
-    }
-
-    .btn {
-      padding: 1rem 2rem;
-      border-radius: 12px;
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 1rem;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      position: relative;
-      overflow: hidden;
-      min-width: 150px;
-      justify-content: center;
-      touch-action: manipulation;
-      -webkit-tap-highlight-color: transparent;
-      min-height: 48px;
-    }
-
-    .btn-primary {
-      background: #111827;
-      color: white;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    }
-
-    .btn-primary:hover {
-      background: #000;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px -1px rgba(0, 0, 0, 0.15);
-    }
-
-    .btn-secondary {
-      background: white;
-      color: #374151;
-      border: 1px solid #e5e7eb;
-      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-    }
-
-    .btn-secondary:hover {
-      background: #f9fafb;
-      border-color: #d1d5db;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 15px 0 rgba(0, 0, 0, 0.1);
-    }
-
-    .btn-icon {
-      font-size: 1.1rem;
-      transition: transform 0.3s ease;
-    }
-
-    .btn:hover .btn-icon {
-      transform: scale(1.1);
-    }
-
-    .features {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
-      margin-top: 6rem;
-      max-width: 900px;
-      width: 100%;
-      opacity: 0;
-      animation: fadeInUp 0.8s ease 0.9s forwards;
-    }
-
-    .feature {
-      background: white;
-      padding: 2rem;
-      border-radius: 16px;
-      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
-      border: 1px solid rgba(0, 0, 0, 0.05);
-      transition: all 0.3s ease;
-    }
-
-    .feature:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
-      border-color: rgba(0, 0, 0, 0.1);
-    }
-
-    .feature-icon {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-      display: block;
-    }
-
-    .feature h3 {
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: #111827;
-      margin-bottom: 0.75rem;
-    }
-
-    .feature p {
-      color: #6b7280;
-      font-size: 0.95rem;
-    }
-
-    footer {
-      padding: 3rem 0;
-      text-align: center;
-      border-top: 1px solid #e5e7eb;
-      margin-top: 4rem;
-    }
-
-    .footer-text {
-      color: #9ca3af;
-      font-size: 0.875rem;
-    }
-
-    .footer-heart {
-      color: #ef4444;
-      animation: pulse 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.7; }
-    }
-
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .hero h1 {
-      opacity: 0;
-      animation: fadeInUp 0.8s ease forwards;
-    }
-
-    /* Mobile optimizations */
-    @media (max-width: 768px) {
-      .container {
-        padding: 0 1rem;
-      }
-
-      header {
-        padding: 1.5rem 0;
-      }
-
-      .logo {
-        font-size: 1.25rem;
-      }
-
-      .logo-icon {
-        font-size: 1.5rem;
-      }
-
-      main {
-        padding: 2rem 0;
-      }
-
-      .hero {
-        margin-bottom: 3rem;
-      }
-
-      .hero h1 {
-        font-size: clamp(2rem, 8vw, 2.5rem);
-        margin-bottom: 1rem;
-      }
-
-      .hero p {
-        font-size: 1.125rem;
-        margin-bottom: 2rem;
-        padding: 0 0.5rem;
-      }
-
-      .cta-buttons {
-        flex-direction: column;
-        align-items: center;
-        gap: 0.75rem;
-        width: 100%;
-        max-width: 300px;
-        margin: 0 auto;
-      }
-
-      .btn {
-        width: 100%;
-        padding: 0.875rem 1.5rem;
-        min-width: unset;
-      }
-
-      .features {
-        grid-template-columns: 1fr;
-        margin-top: 3rem;
-        gap: 1.5rem;
-      }
-
-      .feature {
-        padding: 1.5rem;
-      }
-
-      .feature h3 {
-        font-size: 1.125rem;
-      }
-
-      .feature p {
-        font-size: 0.9rem;
-      }
-
-      footer {
-        padding: 2rem 0;
-        margin-top: 3rem;
-      }
-
-      /* Optimize background blurs for mobile performance */
-      body::before,
-      body::after,
-      .container::before,
-      .container::after {
-        width: 300px;
-        height: 300px;
-        filter: blur(80px);
-        opacity: 0.3;
-      }
-
-      body::before {
-        top: -150px;
-        left: -150px;
-      }
-
-      .container::before {
-        top: -150px;
-        right: -150px;
-      }
-
-      .container::after {
-        bottom: -150px;
-        left: -150px;
-      }
-
-      body::after {
-        bottom: -150px;
-        right: -150px;
-      }
-    }
-
-    /* Small phones */
-    @media (max-width: 480px) {
-      .container {
-        padding: 0 0.75rem;
-      }
-
-      .hero h1 {
-        font-size: 2rem;
-      }
-
-      .hero p {
-        font-size: 1rem;
-      }
-
-      .btn {
-        font-size: 0.95rem;
-        padding: 0.75rem 1.25rem;
-      }
-
-      .feature {
-        padding: 1.25rem;
-      }
-    }
-
-    /* Landscape orientation on phones */
-    @media (max-width: 767px) and (orientation: landscape) {
-      main {
-        padding: 1rem 0;
-      }
-
-      .hero {
-        margin-bottom: 2rem;
-      }
-
-      .hero h1 {
-        font-size: 1.75rem;
-        margin-bottom: 0.75rem;
-      }
-
-      .hero p {
-        font-size: 1rem;
-        margin-bottom: 1.5rem;
-      }
-
-      .cta-buttons {
-        flex-direction: row;
-        max-width: 400px;
-        gap: 0.75rem;
-        margin: 0 auto;
-      }
-
-      .btn {
-        width: auto;
-        min-width: 140px;
-        padding: 0.75rem 1.25rem;
-      }
-
-      .features {
-        margin-top: 2rem;
-      }
-    }
-
-    /* Touch device optimizations */
-    @media (hover: none) and (pointer: coarse) {
-      .btn:hover {
-        transform: none;
-      }
-
-      .btn:active {
-        transform: scale(0.98);
-        transition-duration: 0.1s;
-      }
-
-      .feature:hover {
-        transform: none;
-      }
-
-      .feature:active {
-        transform: scale(0.98);
-        transition-duration: 0.1s;
-      }
-    }
-
-    /* Reduce motion for accessibility */
-    @media (prefers-reduced-motion: reduce) {
-      * {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-      }
-    }
-  </style>
 </head>
 <body>
   <div class="container">
     <header>
       <div class="logo">
-        <span class="logo-icon"></span>
-        FindMyRoomie
+        Alrightt Ananya's FindMyRoomie
       </div>
+      <a href="https://github.com/kushu30/findmyroomie" target="_blank" rel="noopener noreferrer" class="github-corner" title="View on GitHub">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#333" style="vertical-align: middle;">
+          <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.30.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+        </svg>
+      </a>
     </header>
 
     <main>
       <div class="hero">
         <h1>Find your roommate</h1>
         <p>Connect with your roommates before moving in!</p>
-        
+
         <div class="cta-buttons">
           <a href="form.html" class="btn btn-primary">
             Create Profile
@@ -489,9 +32,19 @@
           <a href="lookup.html" class="btn btn-secondary">
             Check Roommates
           </a>
+          <a href="lookup.html" class="btn btn-primary">
+          Watch demo
+          </a>
+          <p>
+  <a href="https://www.youtube.com/@alrighttananya" class="btn btn-primary" style="background-color: #ff5b5b; color: white;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white" style="vertical-align: middle; margin-right: 8px;">
+      <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+    </svg>
+    Subscribe for more updates!
+  </a>
+</p>
         </div>
       </div>
-
       <div class="features">
         <div class="feature">
           <h3>Create Profile</h3>
@@ -506,10 +59,42 @@
     </main>
 
     <footer>
-      <div class="footer-text">
-        -
-      </div>
-    </footer>
+  <div class="footer-text" style="text-align: center; padding: 15px 0; color: #555; font-size: 14px;">
+    Created by
+    <a href="https://www.youtube.com/@alrighttananya" target="_blank" rel="noopener noreferrer" style="color: #ff0000; text-decoration: none;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="#ff0000" style="vertical-align: text-bottom; margin: 0 2px;">
+        <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+      </svg>
+      Ananya
+    </a> 
+    & 
+    <a href="https://www.linkedin.com/in/kushu30/" target="_blank" rel="noopener noreferrer" style="color: #0077b5; text-decoration: none;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="#0077b5" style="vertical-align: text-bottom; margin: 0 2px;">
+        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+      </svg>
+      Kushagra
+    </a>
   </div>
+</footer>
+  </div>
+
+  <style>
+    .github-corner {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      text-decoration: none;
+      transition: opacity 0.3s ease;
+      z-index: 1000;
+    }
+    
+    .github-corner:hover {
+      opacity: 0.7;
+    }
+    
+    header {
+      position: relative;
+    }
+  </style>
 </body>
 </html>
