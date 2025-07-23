@@ -47,7 +47,8 @@ For any queries, feel free to raise an issue or reach out directly.
 
 ## Demo
 
-![Demo](https://private-user-images.githubusercontent.com/178865275/469697701-3c93f8b5-dbaf-4714-a377-c56725341e3d.webm?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NTMyNjYxNzcsIm5iZiI6MTc1MzI2NTg3NywicGF0aCI6Ii8xNzg4NjUyNzUvNDY5Njk3NzAxLTNjOTNmOGI1LWRiYWYtNDcxNC1hMzc3LWM1NjcyNTM0MWUzZC53ZWJtP1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9QUtJQVZDT0RZTFNBNTNQUUs0WkElMkYyMDI1MDcyMyUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNTA3MjNUMTAxNzU3WiZYLUFtei1FeHBpcmVzPTMwMCZYLUFtei1TaWduYXR1cmU9MjY3MTI5OGQxZWU5MTJkMGYxYmUxYWU3MjI5MDBlOTA0ZjI2ZDZlNjliMmNkYjUwZDBhMDExNGUwNDBjNDgwZCZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QifQ.5eekjA893cYMRnNSmT0wRxykc5EEUzyP9TFOieIo5UI)
+![Demo](https://github.com/user-attachments/assets/fca28698-9a26-48db-ac8e-eb8809762546)
+
 ## Made by:
 - [@kushu30](https://www.github.com/kushu30)
 
