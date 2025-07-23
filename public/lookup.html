@@ -1,39 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>FindMyRoomie - Find Your Roommate</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
     <h1>Find Your Roommate</h1>
 
     <form id="lookupForm">
-  <input type="text" name="name" placeholder="Your Full Name" required />
-  <input type="email" name="email" placeholder="Your Email" required />
-  <input type="text" name="branch" placeholder="Your Branch" required />
+      <input type="text" name="name" placeholder="Your Full Name" required />
+      <input type="email" name="email" placeholder="Your Email" required />
+      <input type="text" name="branch" placeholder="Your Branch" required />
 
-  <select name="hostelType" id="hostelType" required>
-    <option value="" disabled selected>Select Hostel Type</option>
-    <option value="boys">Boys</option>
-    <option value="girls">Girls</option>
-  </select>
+      <select name="hostelType" id="hostelType" required>
+        <option value="" disabled selected>Select Hostel Type</option>
+        <option value="boys">Boys</option>
+        <option value="girls">Girls</option>
+      </select>
 
-  <select name="hostel" id="hostel" required>
-    <option value="">-- Select Hostel --</option>
-  </select>
+      <select name="hostel" id="hostel" required>
+        <option value="">-- Select Hostel --</option>
+      </select>
 
-  <input type="text" name="room" placeholder="Room Number" required />
+      <input type="text" name="room" placeholder="Room Number" required />
 
-  <div style="background-color: #fff3cd; color: #000000; padding: 10px; border: 1px solid #ffeeba; border-radius: 5px; margin-bottom: 10px;">
-    <strong>Note:</strong> Please fill in your details carefully. Incorrect or fake information may result in an error, and you won't be able to view your roommates. This is to prevent spoofing and ensure authenticity.
-  </div>
+      <div style="background-color: #fff3cd; color: #000000; padding: 10px; border: 1px solid #ffeeba; border-radius: 5px; margin-bottom: 10px;">
+        <strong>Note:</strong> Please fill in your details carefully. Incorrect or fake information may result in an error, and you won't be able to view your roommates. This is to prevent spoofing and ensure authenticity.
+      </div>
 
-  <button type="submit">Find Roommate</button>
-</form>
+      <button type="submit">Find Roommate</button>
+    </form>
 
-
+    <p id="statusMessage"></p>
     <div id="result"></div>
   </div>
 
@@ -70,44 +71,48 @@
 
     const form = document.getElementById('lookupForm');
     const result = document.getElementById('result');
+    const statusMsg = document.getElementById('statusMessage');
     const hostelTypeSelect = document.getElementById('hostelType');
     const hostelDropdown = document.getElementById('hostel');
 
-    hostelTypeSelect.addEventListener('change', () => {
-      const selectedType = hostelTypeSelect.value;
+    hostelTypeSelect.addEventListener('change', function() {
+      const selectedType = this.value;
       hostelDropdown.innerHTML = '<option value="">-- Select Hostel --</option>';
-      if (hostelData[selectedType]) {
-        hostelData[selectedType].forEach(h => {
-          const opt = document.createElement('option');
-          opt.value = h;
-          opt.textContent = h;
-          hostelDropdown.appendChild(opt);
+      
+      if (selectedType && hostelData[selectedType]) {
+        hostelData[selectedType].forEach(hostel => {
+          const option = document.createElement('option');
+          option.value = hostel;
+          option.textContent = hostel;
+          hostelDropdown.appendChild(option);
         });
       }
     });
 
-    form.addEventListener('submit', async e => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const formData = Object.fromEntries(new FormData(form).entries());
+      
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
       result.innerHTML = '<p style="color:#666;">Searching for roommates...</p>';
 
       try {
         const response = await fetch('https://findmyroomie-production.up.railway.app/api/lookup', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify(formData)
+          body: JSON.stringify(data)
         });
-        const data = await response.json();
+        
+        const responseData = await response.json();
 
-        // Combine single or multiple roommates into array
         let roommates = [];
-        if (Array.isArray(data.roommates)) {
-          roommates = data.roommates;
-        } else if (data.roommate) {
-          roommates = [data.roommate];
+        if (Array.isArray(responseData.roommates)) {
+          roommates = responseData.roommates;
+        } else if (responseData.roommate) {
+          roommates = [responseData.roommate];
         }
 
-        if (data.success && roommates.length > 0) {
+        if (responseData.success && roommates.length > 0) {
           let html = '<div style="margin-top:10px;">';
           roommates.forEach(rm => {
             html += '<div style="background:#d4edda;padding:15px;border-radius:8px;border:1px solid #c3e6cb;color:#155724;margin-bottom:10px;">';
@@ -120,10 +125,10 @@
           html += '</div>';
           result.innerHTML = html;
         } else {
-          result.innerHTML = `<div style="background:#f8d7da;padding:15px;border-radius:8px;border:1px solid #f5c6cb;color:#721c24;margin-top:10px;"><p><strong>${data.message || 'No roommates found.'}</strong></p></div>`;
+          result.innerHTML = `<div style="background:#f8d7da;padding:15px;border-radius:8px;border:1px solid #f5c6cb;color:#721c24;margin-top:10px;"><p><strong>${responseData.message || 'No roommates found.'}</strong></p></div>`;
         }
-      } catch (err) {
-        console.error('Lookup error:', err);
+      } catch (error) {
+        console.error('Lookup error:', error);
         result.innerHTML = `<div style="background:#f8d7da;padding:15px;border-radius:8px;border:1px solid #f5c6cb;color:#721c24;margin-top:10px;"><p><strong>Something went wrong. Please try again.</strong></p></div>`;
       }
     });
