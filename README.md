@@ -61,4 +61,5 @@ For any queries, feel free to raise an issue or reach out directly.
 
 ## Made by:
 - [@kushu30](https://www.github.com/kushu30)
+- [@ananyarana21](https://www.github.com/ananyarana21)
 
