@@ -14,12 +14,12 @@ const PORT = process.env.PORT;
 const mongoURI = process.env.MONGODB_URI;
 
 if (!PORT) {
-  console.error("❌ PORT missing from environment");
+  console.error("❌ PORT missing");
   process.exit(1);
 }
 
 if (!mongoURI) {
-  console.error("❌ MONGODB_URI missing from environment");
+  console.error("❌ MONGODB_URI missing");
   process.exit(1);
 }
 
@@ -27,10 +27,9 @@ if (!mongoURI) {
    MIDDLEWARE
 ========================= */
 app.use(cors({
-  origin: ["https://srmfindmyroomie.vercel.app"],
+  origin: "https://srmfindmyroomie.vercel.app",
   methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type"],
-  optionsSuccessStatus: 200
+  allowedHeaders: ["Content-Type"]
 }));
 app.options("*", cors());
 
@@ -38,7 +37,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
 /* =========================
-   HEALTH CHECK
+   HEALTH
 ========================= */
 app.get("/health", (req, res) => {
   res.status(200).send("OK");
@@ -47,11 +46,36 @@ app.get("/health", (req, res) => {
 /* =========================
    DATABASE
 ========================= */
-mongoose.connect(mongoURI)
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch(err => {
-    console.error("❌ MongoDB connection error:", err.message);
-  });
+mongoose.set("bufferCommands", false);
+
+mongoose.connect(mongoURI, {
+  serverSelectionTimeoutMS: 5000
+});
+
+mongoose.connection.on("connected", () => {
+  console.log("🟢 MongoDB connected");
+});
+
+mongoose.connection.on("error", (err) => {
+  console.error("🔴 MongoDB error:", err.message);
+});
+
+mongoose.connection.on("disconnected", () => {
+  console.log("🟡 MongoDB disconnected");
+});
+
+/* =========================
+   BLOCK REQUESTS IF DB DOWN
+========================= */
+app.use((req, res, next) => {
+  if (mongoose.connection.readyState !== 1) {
+    return res.status(503).json({
+      success: false,
+      message: "Database not connected. Try again shortly."
+    });
+  }
+  next();
+});
 
 /* =========================
    SCHEMA
@@ -62,63 +86,65 @@ const roommateSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
-    lowercase: true,
-    match: [/\S+@\S+\.\S+/, "Invalid email"]
+    lowercase: true
   },
   branch: { type: String, required: true, trim: true, uppercase: true },
   hostelType: { type: String, required: true, trim: true, lowercase: true },
   hostel: { type: String, required: true, trim: true },
   room: { type: String, required: true, trim: true },
-  instagram: { type: String, trim: true, default: "" },
+  instagram: { type: String, default: "" },
   registeredAt: { type: Date, default: Date.now }
 });
 
 roommateSchema.index({ email: 1, hostel: 1, room: 1 }, { unique: true });
 roommateSchema.index({ hostelType: 1, hostel: 1, room: 1 });
 
-const Roommate = mongoose.model("Roommate", roommateSchema);
+const Roommate =
+  mongoose.models.Roommate ||
+  mongoose.model("Roommate", roommateSchema);
 
 /* =========================
    ROUTES
 ========================= */
 
-// ➕ Register roommate
+// ➕ SUBMIT
 app.post("/api/submit", async (req, res) => {
-  console.log("REQ BODY >>>", req.body);
-
   try {
     const doc = await Roommate.create(req.body);
-    return res.json({ success: true, doc });
+    return res.json({
+      success: true,
+      message: "Registration successful",
+      data: doc
+    });
   } catch (err) {
-    console.error("FULL ERROR >>>", err);
+    console.error("Submit error:", err);
+
+    if (err.code === 11000) {
+      return res.status(409).json({
+        success: false,
+        message: "You have already registered for this room."
+      });
+    }
+
     return res.status(500).json({
       success: false,
-      message: err.message,
-      code: err.code,
-      name: err.name
+      message: err.message
     });
   }
 });
 
-// 🔍 Lookup roommates
+// 🔍 LOOKUP
 app.post("/api/lookup", async (req, res) => {
-  const { name, email, branch, hostelType, hostel, room } = req.body;
-
-  if (!name || !email || !branch || !hostelType || !hostel || !room) {
-    return res.status(400).json({
-      success: false,
-      message: "All fields are required."
-    });
-  }
-
   try {
+    const { name, email, branch, hostelType, hostel, room } = req.body;
+
     const user = await Roommate.findOne({
-      name: { $regex: new RegExp(`^${name.trim()}$`, "i") },
-      email: email.toLowerCase().trim(),
-      branch: branch.trim().toUpperCase(),
-      hostelType: hostelType.trim().toLowerCase(),
-      hostel: hostel.trim(),
-      room: room.trim()
+      name: new RegExp(`^${name}$`, "i"),
+      email: email.toLowerCase(),
+      branch: branch.toUpperCase(),
+      hostelType: hostelType.toLowerCase(),
+      hostel,
+      room
     });
 
     if (!user) {
@@ -129,10 +155,10 @@ app.post("/api/lookup", async (req, res) => {
     }
 
     const roommates = await Roommate.find({
-      hostelType: hostelType.trim().toLowerCase(),
-      hostel: hostel.trim(),
-      room: room.trim(),
-      email: { $ne: email.toLowerCase().trim() }
+      hostelType: hostelType.toLowerCase(),
+      hostel,
+      room,
+      email: { $ne: email.toLowerCase() }
     }).select("name branch email instagram -_id");
 
     if (!roommates.length) {
@@ -146,18 +172,17 @@ app.post("/api/lookup", async (req, res) => {
       success: true,
       roommates
     });
-
   } catch (err) {
-    console.error("Lookup error:", err.message);
+    console.error("Lookup error:", err);
     return res.status(500).json({
       success: false,
-      message: "Server error during lookup."
+      message: err.message
     });
   }
 });
 
 /* =========================
-   SERVER START
+   START SERVER
 ========================= */
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Server running on port ${PORT}`);
