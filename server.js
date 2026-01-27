@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -5,211 +7,191 @@ const path = require("path");
 
 const app = express();
 
+/* =========================
+   ENV VALIDATION
+========================= */
+const PORT = process.env.PORT;
+const mongoURI = process.env.MONGODB_URI;
+
+if (!PORT) {
+  console.error("❌ PORT missing from environment");
+  process.exit(1);
+}
+
+if (!mongoURI) {
+  console.error("❌ MONGODB_URI missing from environment");
+  process.exit(1);
+}
+
+/* =========================
+   MIDDLEWARE
+========================= */
 app.use(cors({
   origin: ["https://srmfindmyroomie.vercel.app"],
   methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type"]
+  allowedHeaders: ["Content-Type"],
+  optionsSuccessStatus: 200
 }));
 app.options("*", cors());
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
-
-// ✅ MongoDB Connection
-mongoose.connect(mongoURI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
-.then(() => console.log('✅ MongoDB connected successfully'))
-.catch(err => {
-    console.error('❌ MongoDB connection error:', err);
-    // Do not exit the process here — allow the server to stay up so
-    // API requests return proper HTTP errors (with CORS headers)
-    // instead of causing the proxy (Railway/etc.) to return 502 without CORS.
+/* =========================
+   HEALTH CHECK
+========================= */
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
 });
 
-// 📘 Schema
+/* =========================
+   DATABASE
+========================= */
+mongoose.connect(mongoURI)
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch(err => {
+    console.error("❌ MongoDB connection error:", err.message);
+  });
+
+/* =========================
+   SCHEMA
+========================= */
 const roommateSchema = new mongoose.Schema({
-    name: { type: String, required: true, trim: true },
-    email: { 
-        type: String, required: true, trim: true, lowercase: true,
-        match: [/\S+@\S+\.\S+/, 'is invalid'] 
-    },
-    branch: { type: String, required: true, trim: true, uppercase: true },
-    hostelType: { type: String, required: true, trim: true, lowercase: true },
-    hostel: { type: String, required: true, trim: true },
-    room: { type: String, required: true, trim: true },
-    instagram: { type: String, trim: true, default: '' },
-    registeredAt: { type: Date, default: Date.now }
+  name: { type: String, required: true, trim: true },
+  email: {
+    type: String,
+    required: true,
+    trim: true,
+    lowercase: true,
+    match: [/\S+@\S+\.\S+/, "Invalid email"]
+  },
+  branch: { type: String, required: true, trim: true, uppercase: true },
+  hostelType: { type: String, required: true, trim: true, lowercase: true },
+  hostel: { type: String, required: true, trim: true },
+  room: { type: String, required: true, trim: true },
+  instagram: { type: String, trim: true, default: "" },
+  registeredAt: { type: Date, default: Date.now }
 });
 
 roommateSchema.index({ email: 1, hostel: 1, room: 1 }, { unique: true });
 roommateSchema.index({ hostelType: 1, hostel: 1, room: 1 });
 
-const Roommate = mongoose.model('Roommate', roommateSchema);
+const Roommate = mongoose.model("Roommate", roommateSchema);
 
-// 🔽 ROUTES
+/* =========================
+   ROUTES
+========================= */
 
 // ➕ Register roommate
-app.post('/api/submit', async (req, res) => {
-    const { name, email, branch, hostelType, hostel, room, instagram } = req.body;
+app.post("/api/submit", async (req, res) => {
+  const { name, email, branch, hostelType, hostel, room, instagram } = req.body;
 
-    if (!name || !email || !branch || !hostelType || !hostel || !room) {
-        return res.status(400).json({
-            success: false,
-            message: 'Name, email, branch, hostel type, hostel, and room are required.'
-        });
+  if (!name || !email || !branch || !hostelType || !hostel || !room) {
+    return res.status(400).json({
+      success: false,
+      message: "All fields except Instagram are required."
+    });
+  }
+
+  try {
+    const cleanedEmail = email.toLowerCase().trim();
+
+    const exists = await Roommate.findOne({
+      email: cleanedEmail,
+      hostel: hostel.trim(),
+      room: room.trim()
+    });
+
+    if (exists) {
+      return res.status(409).json({
+        success: false,
+        message: "You have already registered for this room."
+      });
     }
 
-    try {
-        const cleanedEmail = email.toLowerCase().trim();
-        const cleanedRoom = room.trim();
-        const cleanedHostel = hostel.trim();
+    await new Roommate({
+      name: name.trim(),
+      email: cleanedEmail,
+      branch: branch.trim().toUpperCase(),
+      hostelType: hostelType.trim().toLowerCase(),
+      hostel: hostel.trim(),
+      room: room.trim(),
+      instagram: instagram?.trim() || ""
+    }).save();
 
-        const alreadyExists = await Roommate.findOne({
-            email: cleanedEmail,
-            hostel: cleanedHostel,
-            room: cleanedRoom
-        });
+    return res.json({
+      success: true,
+      message: "Registration successful."
+    });
 
-        if (alreadyExists) {
-            return res.status(409).json({
-                success: false,
-                message: 'You have already registered for this room.'
-            });
-        }
-
-        const newRoommate = new Roommate({
-            name: name.trim(),
-            email: cleanedEmail,
-            branch: branch.trim().toUpperCase(),
-            hostelType: hostelType.trim().toLowerCase(),
-            hostel: cleanedHostel,
-            room: cleanedRoom,
-            instagram: instagram?.trim() || ''
-        });
-
-        await newRoommate.save();
-
-        return res.json({
-            success: true,
-            message: 'Registration successful. You can now use the lookup feature.'
-        });
-
-    } catch (err) {
-        console.error('Error in /api/submit:', err);
-        return res.status(500).json({
-            success: false,
-            message: 'Server error while registering.'
-        });
-    }
+  } catch (err) {
+    console.error("Submit error:", err.message);
+    return res.status(500).json({
+      success: false,
+      message: "Server error while registering."
+    });
+  }
 });
 
 // 🔍 Lookup roommates
-app.post('/api/lookup', async (req, res) => {
-    const { name, email, branch, hostelType, hostel, room } = req.body;
+app.post("/api/lookup", async (req, res) => {
+  const { name, email, branch, hostelType, hostel, room } = req.body;
 
-    if (!name || !email || !branch || !hostelType || !hostel || !room) {
-        return res.status(400).json({
-            success: false,
-            message: 'All fields are required for lookup.'
-        });
+  if (!name || !email || !branch || !hostelType || !hostel || !room) {
+    return res.status(400).json({
+      success: false,
+      message: "All fields are required."
+    });
+  }
+
+  try {
+    const user = await Roommate.findOne({
+      name: { $regex: new RegExp(`^${name.trim()}$`, "i") },
+      email: email.toLowerCase().trim(),
+      branch: branch.trim().toUpperCase(),
+      hostelType: hostelType.trim().toLowerCase(),
+      hostel: hostel.trim(),
+      room: room.trim()
+    });
+
+    if (!user) {
+      return res.status(403).json({
+        success: false,
+        message: "No matching registration found."
+      });
     }
 
-    try {
-        const cleanedName = name.trim();
-        const cleanedEmail = email.toLowerCase().trim();
-        const cleanedBranch = branch.trim().toUpperCase();
-        const cleanedHostelType = hostelType.trim().toLowerCase();
-        const cleanedHostel = hostel.trim();
-        const cleanedRoom = room.trim();
+    const roommates = await Roommate.find({
+      hostelType: hostelType.trim().toLowerCase(),
+      hostel: hostel.trim(),
+      room: room.trim(),
+      email: { $ne: email.toLowerCase().trim() }
+    }).select("name branch email instagram -_id");
 
-        const userExists = await Roommate.findOne({
-            name: { $regex: new RegExp(`^${cleanedName}$`, 'i') },
-            email: cleanedEmail,
-            branch: cleanedBranch,
-            hostelType: cleanedHostelType,
-            hostel: cleanedHostel,
-            room: cleanedRoom
-        });
-
-        if (!userExists) {
-            return res.status(403).json({
-                success: false,
-                message: 'No matching registration found. Please check details or register first.'
-            });
-        }
-
-        const roommates = await Roommate.find({
-            hostelType: cleanedHostelType,
-            hostel: cleanedHostel,
-            room: cleanedRoom,
-            email: { $ne: cleanedEmail }
-        }).select('name branch email -_id instagram');
-
-        if (roommates.length === 0) {
-            return res.json({
-                success: false,
-                message: 'No roommates found for this room yet.'
-            });
-        }
-
-        const formatted = roommates.map(r => ({
-            name: r.name,
-            branch: r.branch,
-            instagram: r.instagram || undefined,
-            email: r.email
-        }));
-
-        return res.json({
-            success: true,
-            roommates: formatted
-        });
-
-    } catch (err) {
-        console.error('Error in /api/lookup:', err);
-        return res.status(500).json({
-            success: false,
-            message: 'Server error during roommate lookup.'
-        });
+    if (!roommates.length) {
+      return res.json({
+        success: false,
+        message: "No roommates found yet."
+      });
     }
+
+    return res.json({
+      success: true,
+      roommates
+    });
+
+  } catch (err) {
+    console.error("Lookup error:", err.message);
+    return res.status(500).json({
+      success: false,
+      message: "Server error during lookup."
+    });
+  }
 });
 
-// 🛠 Admin - Get all registrations
-app.get('/api/admin/registrations', async (req, res) => {
-    try {
-        const registrations = await Roommate.find().sort({ registeredAt: -1 });
-        res.json({
-            success: true,
-            count: registrations.length,
-            registrations
-        });
-    } catch (err) {
-        res.status(500).json({
-            success: false,
-            message: 'Failed to fetch registrations'
-        });
-    }
-});
-
-// 🗑 Admin - Clear all registrations
-app.delete('/api/admin/clear', async (req, res) => {
-    try {
-        await Roommate.deleteMany({});
-        res.json({
-            success: true,
-            message: 'All registrations cleared successfully.'
-        });
-    } catch (err) {
-        res.status(500).json({
-            success: false,
-            message: 'Failed to clear registrations'
-        });
-    }
-});
-
-// 🚀 Start server
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
+/* =========================
+   SERVER START
+========================= */
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });
