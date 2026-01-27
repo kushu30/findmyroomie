@@ -16,10 +16,17 @@ if (!mongoURI) {
     process.exit(1);
 }
 
-// Allow CORS
 app.use(cors({
-    origin: process.env.ALLOWED_ORIGIN || '*'
+    origin: [
+        "https://srmfindmyroomie.vercel.app"
+    ],
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type"],
+    optionsSuccessStatus: 200
 }));
+
+app.options("*", cors());
+
 
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -32,7 +39,9 @@ mongoose.connect(mongoURI, {
 .then(() => console.log('✅ MongoDB connected successfully'))
 .catch(err => {
     console.error('❌ MongoDB connection error:', err);
-    process.exit(1); // Exit if DB can't connect
+    // Do not exit the process here — allow the server to stay up so
+    // API requests return proper HTTP errors (with CORS headers)
+    // instead of causing the proxy (Railway/etc.) to return 502 without CORS.
 });
 
 // 📘 Schema
