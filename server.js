@@ -84,21 +84,18 @@ const Roommate = mongoose.model("Roommate", roommateSchema);
 
 // ➕ Register roommate
 app.post("/api/submit", async (req, res) => {
-  console.log("REQ BODY:", req.body);
+  console.log("REQ BODY >>>", req.body);
 
   try {
     const doc = await Roommate.create(req.body);
-    return res.json({
-      success: true,
-      message: "OK",
-      data: doc
-    });
+    return res.json({ success: true, doc });
   } catch (err) {
-    console.error("FULL ERROR OBJECT:", err);
+    console.error("FULL ERROR >>>", err);
     return res.status(500).json({
       success: false,
-      error: err.message,
-      code: err.code
+      message: err.message,
+      code: err.code,
+      name: err.name
     });
   }
 });
