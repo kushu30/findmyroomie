@@ -11,33 +11,39 @@ const app = express();
    ENV VALIDATION
 ========================= */
 const PORT = process.env.PORT;
-const mongoURI = process.env.MONGODB_URI;
+const MONGO_URI = process.env.MONGODB_URI;
 
 if (!PORT) {
   console.error("❌ PORT missing");
   process.exit(1);
 }
 
-if (!mongoURI) {
+if (!MONGO_URI) {
   console.error("❌ MONGODB_URI missing");
   process.exit(1);
 }
 
 /* =========================
-   MIDDLEWARE
+   CORS (MUST BE FIRST)
 ========================= */
-app.use(cors({
+const corsOptions = {
   origin: "https://srmfindmyroomie.vercel.app",
   methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type"]
-}));
-app.options("*", cors());
+  allowedHeaders: ["Content-Type"],
+  optionsSuccessStatus: 200
+};
 
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
+
+/* =========================
+   BODY + STATIC
+========================= */
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
 /* =========================
-   HEALTH
+   HEALTH CHECK (NO DB)
 ========================= */
 app.get("/health", (req, res) => {
   res.status(200).send("OK");
@@ -48,7 +54,7 @@ app.get("/health", (req, res) => {
 ========================= */
 mongoose.set("bufferCommands", false);
 
-mongoose.connect(mongoURI, {
+mongoose.connect(MONGO_URI, {
   serverSelectionTimeoutMS: 5000
 });
 
@@ -65,15 +71,20 @@ mongoose.connection.on("disconnected", () => {
 });
 
 /* =========================
-   BLOCK REQUESTS IF DB DOWN
+   DB GUARD (SKIP OPTIONS)
 ========================= */
 app.use((req, res, next) => {
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+
   if (mongoose.connection.readyState !== 1) {
     return res.status(503).json({
       success: false,
       message: "Database not connected. Try again shortly."
     });
   }
+
   next();
 });
 
@@ -82,12 +93,7 @@ app.use((req, res, next) => {
 ========================= */
 const roommateSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
-  email: {
-    type: String,
-    required: true,
-    trim: true,
-    lowercase: true
-  },
+  email: { type: String, required: true, trim: true, lowercase: true },
   branch: { type: String, required: true, trim: true, uppercase: true },
   hostelType: { type: String, required: true, trim: true, lowercase: true },
   hostel: { type: String, required: true, trim: true },
@@ -110,11 +116,10 @@ const Roommate =
 // ➕ SUBMIT
 app.post("/api/submit", async (req, res) => {
   try {
-    const doc = await Roommate.create(req.body);
+    await Roommate.create(req.body);
     return res.json({
       success: true,
-      message: "Registration successful",
-      data: doc
+      message: "Registration successful"
     });
   } catch (err) {
     console.error("Submit error:", err);
