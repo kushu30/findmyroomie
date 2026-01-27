@@ -84,63 +84,24 @@ const Roommate = mongoose.model("Roommate", roommateSchema);
 
 // ➕ Register roommate
 app.post("/api/submit", async (req, res) => {
-  const { name, email, branch, hostelType, hostel, room, instagram } = req.body;
-
-  if (!name || !email || !branch || !hostelType || !hostel || !room) {
-    return res.status(400).json({
-      success: false,
-      message: "All fields except Instagram are required."
-    });
-  }
+  console.log("REQ BODY:", req.body);
 
   try {
-    const cleanedEmail = email.toLowerCase().trim();
-
-    const exists = await Roommate.findOne({
-      email: cleanedEmail,
-      hostel: hostel.trim(),
-      room: room.trim()
-    });
-
-    if (exists) {
-      return res.status(409).json({
-        success: false,
-        message: "You have already registered for this room."
-      });
-    }
-
-    await new Roommate({
-      name: name.trim(),
-      email: cleanedEmail,
-      branch: branch.trim().toUpperCase(),
-      hostelType: hostelType.trim().toLowerCase(),
-      hostel: hostel.trim(),
-      room: room.trim(),
-      instagram: instagram?.trim() || ""
-    }).save();
-
+    const doc = await Roommate.create(req.body);
     return res.json({
       success: true,
-      message: "Registration successful."
+      message: "OK",
+      data: doc
     });
-
   } catch (err) {
-  console.error("Submit error:", err);
-
-  if (err.code === 11000) {
-    return res.status(409).json({
+    console.error("FULL ERROR OBJECT:", err);
+    return res.status(500).json({
       success: false,
-      message: "You have already registered for this room."
+      error: err.message,
+      code: err.code
     });
   }
-
-  return res.status(500).json({
-    success: false,
-    message: "Unexpected server error."
-  });
-}
-
-  });
+});
 
 // 🔍 Lookup roommates
 app.post("/api/lookup", async (req, res) => {
