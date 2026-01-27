@@ -125,13 +125,22 @@ app.post("/api/submit", async (req, res) => {
     });
 
   } catch (err) {
-    console.error("Submit error:", err.message);
-    return res.status(500).json({
+  console.error("Submit error:", err);
+
+  if (err.code === 11000) {
+    return res.status(409).json({
       success: false,
-      message: "Server error while registering."
+      message: "You have already registered for this room."
     });
   }
-});
+
+  return res.status(500).json({
+    success: false,
+    message: "Unexpected server error."
+  });
+}
+
+  });
 
 // 🔍 Lookup roommates
 app.post("/api/lookup", async (req, res) => {
