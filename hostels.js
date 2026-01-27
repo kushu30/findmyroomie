@@ -1,4 +1,4 @@
-window.HOSTELS = {
+const HOSTELS = {
   girls: [
     "Kopperundevi: AC with attached washroom - 2 sharing",
     "Kopperundevi: Non-AC with attached washroom - 2 sharing",
@@ -29,7 +29,7 @@ window.HOSTELS = {
   ]
 };
 
-window.BRANCHES = [
+const BRANCHES = [
   "AERONAUTICAL ENGINEERING",
   "AEROSPACE ENGINEERING",
   "ARCHITECTURE",
