@@ -3,87 +3,100 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Register - FindMyRoomie</title>
+  <title>Register</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="hostels.js"></script>
 </head>
 <body>
   <div class="container">
-    <h1>Register Your Details</h1>
+    <h1>Register</h1>
 
     <form id="roomieForm">
-      <input type="text" name="name" placeholder="Full Name" required />
-      <input type="email" name="email" placeholder="Email Address" required />
-      <input type="text" name="branch" placeholder="Branch (ex: CSE)" required />
+      <input name="name" placeholder="Full Name" required />
+      <input type="email" name="email" placeholder="Email" required />
+
+      <select id="branchSelect">
+        <option value="">Select Branch</option>
+      </select>
+      <input id="branchOther" placeholder="Enter Branch" style="display:none" />
+
+      <input type="hidden" name="branch" id="branchFinal" required />
 
       <select name="hostelType" id="hostelType" required>
-        <option value="" disabled selected>Select Hostel Type</option>
+        <option value="">Hostel Type</option>
         <option value="boys">Boys</option>
         <option value="girls">Girls</option>
       </select>
 
       <select name="hostel" id="hostel" required>
-        <option value="">-- Select Hostel --</option>
+        <option value="">Select Hostel</option>
       </select>
 
-      <input type="text" name="room" placeholder="Room Number" required />
+      <input name="room" placeholder="Room Number" required />
 
       <div>
         <label><input type="radio" name="contactType" value="instagram" checked /> Instagram</label>
         <label><input type="radio" name="contactType" value="discord" /> Discord</label>
         <label><input type="radio" name="contactType" value="phone" /> Phone</label>
+        <label><input type="radio" name="contactType" value="x" /> X</label>
         <label><input type="radio" name="contactType" value="other" /> Other</label>
       </div>
 
-      <input type="text" name="contactValue" placeholder="Enter selected contact" required />
+      <input name="contactValue" placeholder="Contact" required />
 
       <button type="submit">Submit</button>
     </form>
 
-    <p id="statusMessage"></p>
+    <p id="status"></p>
   </div>
 
-  <script>
-    const hostelData = {
-      girls: [
-        "Kalpana Chawla: AC with attached washroom - 4 sharing",
-        "Meenakshi: Non-AC with attached washroom - 3 sharing"
-      ],
-      boys: [
-        "Adhiyaman: AC with attached washroom - 2 sharing",
-        "Began: Non-AC with common washroom - 2 sharing"
-      ]
-    };
+<script>
+const branchSelect = document.getElementById("branchSelect");
+const branchOther = document.getElementById("branchOther");
+const branchFinal = document.getElementById("branchFinal");
 
-    const hostelTypeSelect = document.getElementById("hostelType");
-    const hostelDropdown = document.getElementById("hostel");
-    const form = document.getElementById("roomieForm");
-    const statusMsg = document.getElementById("statusMessage");
+BRANCHES.forEach(b => {
+  const o = document.createElement("option");
+  o.value = b;
+  o.textContent = b;
+  branchSelect.appendChild(o);
+});
 
-    hostelTypeSelect.addEventListener("change", function () {
-      hostelDropdown.innerHTML = `<option value="">-- Select Hostel --</option>`;
-      hostelData[this.value]?.forEach(h => {
-        const o = document.createElement("option");
-        o.value = h;
-        o.textContent = h;
-        hostelDropdown.appendChild(o);
-      });
-    });
+branchSelect.onchange = () => {
+  if (branchSelect.value === "OTHER") {
+    branchOther.style.display = "block";
+    branchFinal.value = "";
+  } else {
+    branchOther.style.display = "none";
+    branchFinal.value = branchSelect.value;
+  }
+};
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const data = Object.fromEntries(new FormData(form).entries());
-      try {
-        const res = await fetch("https://findmyroomie-production.up.railway.app/api/submit", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data)
-        });
-        const r = await res.json();
-        statusMsg.textContent = r.message;
-      } catch {
-        statusMsg.textContent = "Something went wrong";
-      }
-    });
-  </script>
+branchOther.oninput = () => {
+  branchFinal.value = branchOther.value.toUpperCase();
+};
+
+document.getElementById("hostelType").onchange = function () {
+  hostel.innerHTML = `<option value="">Select Hostel</option>`;
+  HOSTELS[this.value]?.forEach(h => {
+    const o = document.createElement("option");
+    o.value = h;
+    o.textContent = h;
+    hostel.appendChild(o);
+  });
+};
+
+roomieForm.onsubmit = async e => {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(roomieForm));
+  const r = await fetch("https://findmyroomie-production.up.railway.app/api/submit", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
+  const j = await r.json();
+  status.textContent = j.message;
+};
+</script>
 </body>
 </html>

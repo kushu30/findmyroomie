@@ -1,59 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Lookup - FindMyRoomie</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8">
+<title>Lookup</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <h1>Find Your Roommate</h1>
-
-    <form id="lookupForm">
-      <input type="text" name="name" placeholder="Your Full Name" required />
-      <input type="email" name="email" placeholder="Your Email" required />
-      <input type="text" name="branch" placeholder="Your Branch" required />
-      <select name="hostelType" id="hostelType" required>
-        <option value="" disabled selected>Select Hostel Type</option>
-        <option value="boys">Boys</option>
-        <option value="girls">Girls</option>
-      </select>
-      <select name="hostel" id="hostel" required>
-        <option value="">-- Select Hostel --</option>
-      </select>
-      <input type="text" name="room" placeholder="Room Number" required />
-      <button type="submit">Find Roommate</button>
-    </form>
-
-    <div id="result"></div>
-  </div>
-
-  <script>
-    const form = document.getElementById("lookupForm");
-    const result = document.getElementById("result");
-
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const data = Object.fromEntries(new FormData(form).entries());
-      try {
-        const res = await fetch("https://findmyroomie-production.up.railway.app/api/lookup", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data)
-        });
-        const r = await res.json();
-        if (r.success) {
-          result.innerHTML = r.roommates.map(m =>
-            `<p>${m.name} (${m.branch}) — ${m.contactType}: ${m.contactValue}</p>`
-          ).join("");
-        } else {
-          result.textContent = r.message;
-        }
-      } catch {
-        result.textContent = "Something went wrong";
-      }
-    });
-  </script>
+<div class="container">
+<h1>Lookup</h1>
+<form id="f">
+<input name="name" placeholder="Name" required>
+<input name="email" type="email" placeholder="Email" required>
+<input name="branch" placeholder="Branch" required>
+<input name="hostelType" placeholder="Hostel Type" required>
+<input name="hostel" placeholder="Hostel" required>
+<input name="room" placeholder="Room" required>
+<button>Search</button>
+</form>
+<div id="r"></div>
+</div>
+<script>
+f.onsubmit = async e => {
+  e.preventDefault();
+  const d = Object.fromEntries(new FormData(f));
+  const res = await fetch("https://findmyroomie-production.up.railway.app/api/lookup",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(d)
+  });
+  const j = await res.json();
+  r.innerHTML = j.success
+    ? j.roommates.map(x=>`${x.name} (${x.branch}) - ${x.contactType}: ${x.contactValue}`).join("<br>")
+    : j.message;
+};
+</script>
 </body>
 </html>
