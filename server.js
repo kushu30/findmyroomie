@@ -1,35 +1,20 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const path = require('path');
-require('dotenv').config(); // For local dev only
+const express = require("express");
+const cors = require("cors");
+const mongoose = require("mongoose");
+const path = require("path");
 
-// Init Express
 const app = express();
-const PORT = process.env.PORT || 3000;
-const mongoURI = process.env.MONGODB_URI;
-
-// 🔍 Check for required env variable
-if (!mongoURI) {
-    console.error('❌ MONGODB_URI is missing. Set it in your Vercel or .env configuration.');
-    process.exit(1);
-}
 
 app.use(cors({
-    origin: [
-        "https://srmfindmyroomie.vercel.app"
-    ],
-    methods: ["GET", "POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type"],
-    optionsSuccessStatus: 200
+  origin: ["https://srmfindmyroomie.vercel.app"],
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type"]
 }));
-
 app.options("*", cors());
 
+app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
 
-app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, 'public')));
 
 // ✅ MongoDB Connection
 mongoose.connect(mongoURI, {
