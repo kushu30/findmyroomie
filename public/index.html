@@ -1,102 +1,252 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link rel="stylesheet" href="indexstyle.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FindMyRoomie | SRM KTR</title>
+    <style>
+        :root {
+            --primary: #ef4444;
+            --primary-hover: #dc2626;
+            --bg: #fcfcfc;
+            --text-main: #000000;
+            --text-muted: #52525b;
+            --card-bg: #ffffff;
+            --border: #e4e4e7;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
 
-  <title>FindMyRoomie</title>
-  <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, system-ui, sans-serif;
+            background-color: var(--bg);
+            background-image: 
+                linear-gradient(30deg, #f0f0f0 12%, transparent 12.5%, transparent 87%, #f0f0f0 87.5%, #f0f0f0),
+                linear-gradient(150deg, #f0f0f0 12%, transparent 12.5%, transparent 87%, #f0f0f0 87.5%, #f0f0f0),
+                linear-gradient(30deg, #f0f0f0 12%, transparent 12.5%, transparent 87%, #f0f0f0 87.5%, #f0f0f0),
+                linear-gradient(150deg, #f0f0f0 12%, transparent 12.5%, transparent 87%, #f0f0f0 87.5%, #f0f0f0),
+                linear-gradient(60deg, #f8f8f8 25%, transparent 25.5%, transparent 75%, #f8f8f8 75.5%, #f8f8f8),
+                linear-gradient(60deg, #f8f8f8 25%, transparent 25.5%, transparent 75%, #f8f8f8 75.5%, #f8f8f8);
+            background-size: 80px 140px;
+            background-position: 0 0, 0 0, 40px 70px, 40px 70px, 0 0, 40px 70px;
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 48px 0;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            text-transform: lowercase;
+        }
+
+        .github-link {
+            color: var(--text-main);
+            padding: 8px;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+
+        .github-link:hover {
+            background: #f4f4f5;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 100px 0 140px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 16px;
+            background: var(--text-main);
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 32px;
+        }
+
+        .hero h1 {
+            font-size: clamp(48px, 9vw, 84px);
+            font-weight: 900;
+            line-height: 0.95;
+            letter-spacing: -4px;
+            margin-bottom: 32px;
+        }
+
+        .hero p {
+            font-size: clamp(20px, 3.5vw, 24px);
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto 56px;
+            font-weight: 400;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 20px 40px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 800;
+            text-decoration: none;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 2px solid transparent;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 10px 20px -10px var(--primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 30px -10px var(--primary);
+            background: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-main);
+            border-color: var(--text-main);
+        }
+
+        .btn-secondary:hover {
+            background: var(--text-main);
+            color: white;
+            transform: translateY(-4px);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 32px;
+            margin-bottom: 120px;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            padding: 48px;
+            border-radius: 12px;
+            border: 2px solid var(--text-main);
+            box-shadow: 8px 8px 0px 0px var(--text-main);
+            transition: all 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translate(-4px, -4px);
+            box-shadow: 12px 12px 0px 0px var(--text-main);
+        }
+
+        .feature-card h3 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
+
+        .feature-card p {
+            color: var(--text-muted);
+            font-size: 18px;
+            font-weight: 450;
+        }
+
+        footer {
+            border-top: 2px solid var(--border);
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        .footer-content {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .footer-content a {
+            color: var(--text-main);
+            text-decoration: underline;
+            text-decoration-thickness: 2px;
+            text-underline-offset: 4px;
+            font-weight: 800;
+        }
+
+        @media (max-width: 640px) {
+            .hero { padding: 60px 0 80px; }
+            .cta-group .btn { width: 100%; text-align: center; }
+            .feature-card { padding: 32px; }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div class="logo">
-        Alrightt Ananya's FindMyRoomie
-      </div>
-      <a href="https://github.com/kushu30/findmyroomie" target="_blank" rel="noopener noreferrer" class="github-corner" title="View on GitHub">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#333" style="vertical-align: middle;">
-          <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.30.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-        </svg>
-      </a>
-    </header>
+    <div class="container">
+        <header>
+            <div class="logo">findmyroomie.</div>
+            <a href="https://github.com/kushu30/findmyroomie" target="_blank" class="github-link">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+            </a>
+        </header>
 
-    <main>
-      <div class="hero">
-        <h1>Find your roommate</h1>
-        <p>Connect with your roommates in SRM KTR before moving in!</p>
+        <main>
+            <section class="hero">
+                <span class="badge">SRM KTR campus</span>
+                <h1>Connect before you move.</h1>
+                <p>A minimalist platform for students to find their roommates, share preferences, and eliminate moving-day anxiety.</p>
+                
+                <div class="cta-group">
+                    <a href="form.html" class="btn btn-primary">Get Started</a>
+                    <a href="lookup.html" class="btn btn-secondary">Find Roommates</a>
+                </div>
+            </section>
 
-        <div class="cta-buttons">
-          <a href="form.html" class="btn btn-primary">
-            Create Profile
-          </a>
-          <a href="lookup.html" class="btn btn-secondary">
-            Check Roommates
-          </a>
-          <a href="https://www.youtube.com/watch?v=dzn4Ixm88jk&feature=youtu.be" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
-  Watch demo
-</a>
+            <section class="features">
+                <div class="feature-card">
+                    <h3>The Profile</h3>
+                    <p>Briefly list your habits and room number. We keep it simple so you can find your match faster.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>The Search</h3>
+                    <p>Browse by block or room. Reach out to your future roommates and start the conversation early.</p>
+                </div>
+            </section>
+        </main>
 
-          <p>
-  <a href="https://www.youtube.com/@alrighttananya" class="btn btn-primary" style="background-color: #ff5b5b; color: white;">
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white" style="vertical-align: middle; margin-right: 8px;">
-      <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
-    </svg>
-    Subscribe for more updates!
-  </a>
-</p>
-        </div>
-      </div>
-      <div class="features">
-        <div class="feature">
-          <h3>Create Profile</h3>
-          <p>Click on the "Create Profile" button above and fill in all your details carefully.</p>
-        </div>
-        
-        <div class="feature">
-          <h3>Check Your Roommate</h3>
-          <p>Once you've created your profile and others have filled theirs, you can view your roommates based on your room details.</p>
-        </div>
-      </div>
-    </main>
-
-    <footer>
-  <div class="footer-text" style="text-align: center; padding: 15px 0; color: #555; font-size: 14px;">
-    Created by
-    <a href="https://www.linkedin.com/in/ananya-rana-627347258/" target="_blank" rel="noopener noreferrer" style="color: #0077b5; text-decoration: none;">
-      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="#0077b5" style="vertical-align: text-bottom; margin: 0 2px;">
-        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-      </svg>
-      Ananya
-    </a>
-    & 
-    <a href="https://www.linkedin.com/in/kushu30/" target="_blank" rel="noopener noreferrer" style="color: #0077b5; text-decoration: none;">
-      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="#0077b5" style="vertical-align: text-bottom; margin: 0 2px;">
-        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-      </svg>
-      Kushagra
-    </a>
-  </div>
-</footer>
-  </div>
-
-  <style>
-    .github-corner {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      text-decoration: none;
-      transition: opacity 0.3s ease;
-      z-index: 1000;
-    }
-    
-    .github-corner:hover {
-      opacity: 0.7;
-    }
-    
-    header {
-      position: relative;
-    }
-  </style>
+        <footer>
+            <div class="footer-content">
+                Built by <a href="https://www.linkedin.com/in/ananya-rana-627347258/">Ananya</a> & <a href="https://www.linkedin.com/in/kushu30/">Kushagra</a>
+            </div>
+        </footer>
+    </div>
 </body>
 </html>
