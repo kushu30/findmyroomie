@@ -77,167 +77,248 @@
         </div>
     </div>
 
-    <script>
-        const HOSTELS = {
-            girls: [
-                "Kopperundevi: AC with attached washroom - 2 sharing",
-                "Kopperundevi: Non-AC with attached washroom - 2 sharing",
-                "ESQ A: Non-AC with attached washroom - 2 sharing",
-                "ESQ A: Non-AC with attached washroom - 3 sharing",
-                "ESQ A: Non-AC with attached washroom - 4 sharing",
-                "ESQ B: Non-AC with attached washroom - 2 sharing",
-                "ESQ B: Non-AC with attached washroom - 3 sharing",
-                "Sannasi C: AC with attached washroom - 3 sharing",
-                "Sannasi C: Non-AC with attached washroom - 3 sharing",
-                "Malligai: Non-AC with common washroom - 2 sharing",
-                "Senbagam: Non-AC with common washroom - 3 sharing",
-                "Senbagam: Non-AC with common washroom - 6 sharing"
-            ],
-            boys: [
-                "Premium Boys: AC with attached washroom - 3 sharing",
-                "Green Pearl (Off-Campus): AC with attached washroom - 3 sharing",
-                "Green Pearl (Off-Campus): Non-AC with attached washroom - 3 sharing",
-                "Nelson Mandela: AC with attached washroom - 3 sharing",
-                "Agasthiyar: AC with attached washroom - 4 sharing",
-                "Sannasi A: AC with attached washroom - 3 sharing",
-                "Sannasi A: Non-AC with attached washroom - 3 sharing",
-                "Began: AC with common washroom - 3 sharing",
-                "Oori: AC with common washroom - 4 & 5 sharing",
-                "Manoranjitham: Non-AC with common washroom - 3 sharing",
-                "Kaari: Non-AC with common washroom - 4 & 5 sharing",
-                "Paari: Non-AC with common washroom - 4 & 5 sharing"
-            ]
-        };
+<script>
+  const API_BASE =
+  location.hostname === "localhost"
+    ? "http://localhost:3000"
+    : "https://findmyroomie-production.up.railway.app";
 
-        const BRANCHES = [
-            "AERONAUTICAL ENGINEERING",
-            "AEROSPACE ENGINEERING",
-            "ARCHITECTURE",
-            "ARTIFICIAL INTELLIGENCE",
-            "AUTOMATION AND ROBOTICS",
-            "AUTOMOBILE ENGINEERING",
-            "AUTOMOBILE ENGINEERING (AUTOMOTIVE ELECTRONICS)",
-            "BIOMEDICAL ENGINEERING",
-            "BIOMEDICAL ENGINEERING (MACHINE INTELLIGENCE)",
-            "BIOTECHNOLOGY",
-            "BIOTECHNOLOGY (COMPUTATIONAL BIOLOGY)",
-            "BIOTECHNOLOGY (FOOD TECHNOLOGY)",
-            "BIOTECHNOLOGY (GENETIC ENGINEERING)",
-            "BIOTECHNOLOGY (REGENERATIVE MEDICINE)",
-            "CHEMICAL ENGINEERING",
-            "CIVIL ENGINEERING",
-            "CIVIL ENGINEERING (COMPUTER APPLICATIONS)",
-            "COMPUTER SCIENCE AND BUSINESS SYSTEM",
-            "COMPUTER SCIENCE AND ENGINEERING",
-            "COMPUTER SCIENCE AND ENGINEERING (AIML)",
-            "COMPUTER SCIENCE AND ENGINEERING (BIG DATA ANALYTICS)",
-            "COMPUTER SCIENCE AND ENGINEERING (BLOCKCHAIN TECHNOLOGY)",
-            "COMPUTER SCIENCE AND ENGINEERING (CLOUD COMPUTING)",
-            "COMPUTER SCIENCE AND ENGINEERING (CYBER SECURITY)",
-            "COMPUTER SCIENCE AND ENGINEERING (DATA SCIENCE)",
-            "COMPUTER SCIENCE AND ENGINEERING (DEVSECOPS)",
-            "COMPUTER SCIENCE AND ENGINEERING (GAMING TECHNOLOGY)",
-            "COMPUTER SCIENCE AND ENGINEERING (INFORMATION TECHNOLOGY)",
-            "COMPUTER SCIENCE AND ENGINEERING (IOT)",
-            "COMPUTER SCIENCE AND ENGINEERING (SOFTWARE ENGINEERING)",
-            "ELECTRICAL AND ELECTRONICS ENGINEERING",
-            "ELECTRONICS AND COMMUNICATION ENGINEERING",
-            "ELECTRONICS AND COMMUNICATION ENGINEERING (CYBER PHYSICAL SYSTEMS)",
-            "ELECTRONICS AND COMMUNICATION ENGINEERING (DATA SCIENCE)",
-            "ELECTRONICS AND COMPUTER ENGINEERING",
-            "ELECTRONICS AND INSTRUMENTATION ENGINEERING",
-            "ELECTRONICS ENGINEERING (VLSI DESIGN AND TECHNOLOGY)",
-            "INTERIOR DESIGN",
-            "MATHEMATICS AND COMPUTING",
-            "MECHANICAL ENGINEERING",
-            "MECHANICAL ENGINEERING (AUTOMATION AND ROBOTICS)",
-            "MECHANICAL ENGINEERING (ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING)",
-            "MECHATRONICS ENGINEERING",
-            "MECHATRONICS ENGINEERING (ROBOTICS)",
-            "NANOTECHNOLOGY",
-            "ARTIFICIAL INTELLIGENCE (INTEGRATED M.TECH)",
-            "COMPUTER SCIENCE AND ENGINEERING (INTEGRATED M.TECH)",
-            "COMPUTER SCIENCE AND ENGINEERING (CYBER SECURITY & DIGITAL FORENSICS) (INTEGRATED M.TECH)",
-            "COMPUTER SCIENCE AND ENGINEERING (DATA SCIENCE) (INTEGRATED M.TECH)",
-            "ELECTRONICS AND COMMUNICATION ENGINEERING (MICRO ELECTRONICS SYSTEM DESIGN) (INTEGRATED M.TECH)",
-            "MATERIAL SCIENCE AND ENGINEERING (INTEGRATED M.TECH)",
-            "OTHER"
-        ];
+const HOSTELS = {
+    girls: [
+        "Kopperundevi: AC with attached washroom - 2 sharing",
+        "Kopperundevi: Non-AC with attached washroom - 2 sharing",
+        "ESQ A: Non-AC with attached washroom - 2 sharing",
+        "ESQ A: Non-AC with attached washroom - 3 sharing",
+        "ESQ A: Non-AC with attached washroom - 4 sharing",
+        "ESQ B: Non-AC with attached washroom - 2 sharing",
+        "ESQ B: Non-AC with attached washroom - 3 sharing",
+        "Sannasi C: AC with attached washroom - 3 sharing",
+        "Sannasi C: Non-AC with attached washroom - 3 sharing",
+        "Malligai: Non-AC with common washroom - 2 sharing",
+        "Senbagam: Non-AC with common washroom - 3 sharing",
+        "Senbagam: Non-AC with common washroom - 6 sharing"
+    ],
+    boys: [
+        "Premium Boys: AC with attached washroom - 3 sharing",
+        "Green Pearl (Off-Campus): AC with attached washroom - 3 sharing",
+        "Green Pearl (Off-Campus): Non-AC with attached washroom - 3 sharing",
+        "Nelson Mandela: AC with attached washroom - 3 sharing",
+        "Agasthiyar: AC with attached washroom - 4 sharing",
+        "Sannasi A: AC with attached washroom - 3 sharing",
+        "Sannasi A: Non-AC with attached washroom - 3 sharing",
+        "Began: AC with common washroom - 3 sharing",
+        "Oori: AC with common washroom - 4 & 5 sharing",
+        "Manoranjitham: Non-AC with common washroom - 3 sharing",
+        "Kaari: Non-AC with common washroom - 4 & 5 sharing",
+        "Paari: Non-AC with common washroom - 4 & 5 sharing"
+    ]
+};
 
-        const form = document.getElementById("lookupForm");
-        const loader = document.getElementById("loader");
-        const searchBtn = document.getElementById("searchBtn");
-        const results = document.getElementById("results");
-        const branchSelect = document.getElementById("branchSelect");
-        const customBranch = document.getElementById("customBranch");
-        const hostelType = document.getElementById("hostelType");
-        const hostelSelect = document.getElementById("hostelSelect");
+const BRANCHES = [
+    "AERONAUTICAL ENGINEERING","AEROSPACE ENGINEERING","ARCHITECTURE",
+    "ARTIFICIAL INTELLIGENCE","AUTOMATION AND ROBOTICS",
+    "AUTOMOBILE ENGINEERING","AUTOMOBILE ENGINEERING (AUTOMOTIVE ELECTRONICS)",
+    "BIOMEDICAL ENGINEERING","BIOMEDICAL ENGINEERING (MACHINE INTELLIGENCE)",
+    "BIOTECHNOLOGY","BIOTECHNOLOGY (COMPUTATIONAL BIOLOGY)",
+    "BIOTECHNOLOGY (FOOD TECHNOLOGY)","BIOTECHNOLOGY (GENETIC ENGINEERING)",
+    "BIOTECHNOLOGY (REGENERATIVE MEDICINE)","CHEMICAL ENGINEERING",
+    "CIVIL ENGINEERING","CIVIL ENGINEERING (COMPUTER APPLICATIONS)",
+    "COMPUTER SCIENCE AND BUSINESS SYSTEM",
+    "COMPUTER SCIENCE AND ENGINEERING",
+    "COMPUTER SCIENCE AND ENGINEERING (AIML)",
+    "COMPUTER SCIENCE AND ENGINEERING (BIG DATA ANALYTICS)",
+    "COMPUTER SCIENCE AND ENGINEERING (BLOCKCHAIN TECHNOLOGY)",
+    "COMPUTER SCIENCE AND ENGINEERING (CLOUD COMPUTING)",
+    "COMPUTER SCIENCE AND ENGINEERING (CYBER SECURITY)",
+    "COMPUTER SCIENCE AND ENGINEERING (DATA SCIENCE)",
+    "COMPUTER SCIENCE AND ENGINEERING (DEVSECOPS)",
+    "COMPUTER SCIENCE AND ENGINEERING (GAMING TECHNOLOGY)",
+    "COMPUTER SCIENCE AND ENGINEERING (INFORMATION TECHNOLOGY)",
+    "COMPUTER SCIENCE AND ENGINEERING (IOT)",
+    "COMPUTER SCIENCE AND ENGINEERING (SOFTWARE ENGINEERING)",
+    "ELECTRICAL AND ELECTRONICS ENGINEERING",
+    "ELECTRONICS AND COMMUNICATION ENGINEERING",
+    "ELECTRONICS AND COMMUNICATION ENGINEERING (CYBER PHYSICAL SYSTEMS)",
+    "ELECTRONICS AND COMMUNICATION ENGINEERING (DATA SCIENCE)",
+    "ELECTRONICS AND COMPUTER ENGINEERING",
+    "ELECTRONICS AND INSTRUMENTATION ENGINEERING",
+    "ELECTRONICS ENGINEERING (VLSI DESIGN AND TECHNOLOGY)",
+    "INTERIOR DESIGN","MATHEMATICS AND COMPUTING",
+    "MECHANICAL ENGINEERING",
+    "MECHANICAL ENGINEERING (AUTOMATION AND ROBOTICS)",
+    "MECHANICAL ENGINEERING (ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING)",
+    "MECHATRONICS ENGINEERING","MECHATRONICS ENGINEERING (ROBOTICS)",
+    "NANOTECHNOLOGY","OTHER"
+];
 
-        BRANCHES.forEach(b => branchSelect.appendChild(new Option(b, b)));
+const form = document.getElementById("lookupForm");
+const loader = document.getElementById("loader");
+const searchBtn = document.getElementById("searchBtn");
+const results = document.getElementById("results");
+const branchSelect = document.getElementById("branchSelect");
+const customBranch = document.getElementById("customBranch");
+const hostelType = document.getElementById("hostelType");
+const hostelSelect = document.getElementById("hostelSelect");
 
-        branchSelect.onchange = () => {
-            customBranch.style.display = branchSelect.value === "OTHER" ? "block" : "none";
-            customBranch.required = branchSelect.value === "OTHER";
-        };
+BRANCHES.forEach(b => branchSelect.appendChild(new Option(b, b)));
 
-        hostelType.onchange = () => {
-            hostelSelect.innerHTML = `<option value="" disabled selected>Select Block</option>`;
-            HOSTELS[hostelType.value]?.forEach(h => hostelSelect.appendChild(new Option(h, h)));
-        };
+branchSelect.onchange = () => {
+    customBranch.style.display = branchSelect.value === "OTHER" ? "block" : "none";
+    customBranch.required = branchSelect.value === "OTHER";
+};
 
-        form.onsubmit = async (e) => {
-            e.preventDefault();
-            loader.style.display = "block";
-            searchBtn.disabled = true;
-            results.innerHTML = "";
+hostelType.onchange = () => {
+    hostelSelect.innerHTML = `<option value="" disabled selected>Select Block</option>`;
+    HOSTELS[hostelType.value]?.forEach(h => hostelSelect.appendChild(new Option(h, h)));
+};
 
-            const formData = new FormData(form);
-            const data = Object.fromEntries(formData.entries());
+const contactLink = (type, value) => {
+  if (!type) return "";
 
-            data.branch = branchSelect.value === "OTHER" 
-                ? customBranch.value.trim().toUpperCase() 
-                : branchSelect.value;
-            
-            data.hostel = hostelSelect.value;
-            data.room = data.room.trim().toUpperCase();
-            data.name = data.name.trim().toUpperCase();
+  if (type === "instagram") {
+    return `<a class="contact-link" href="https://instagram.com/${value}" target="_blank">
+      <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg">
+      @${value}
+    </a>`;
+  }
 
-            try {
-                const res = await fetch("https://findmyroomie-production.up.railway.app/api/lookup", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(data)
-                });
+  if (type === "discord") {
+    return `<a class="contact-link" href="https://discord.com" target="_blank">
+      <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/discord.svg">
+      ${value}
+    </a>`;
+  }
 
-                const json = await res.json();
-                loader.style.display = "none";
+  if (type === "phone") {
+    const num = value.replace(/\D/g, "");
+    return `<a class="contact-link" href="https://wa.me/${num}" target="_blank">
+      <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/whatsapp.svg">
+      ${value}
+    </a>`;
+  }
 
-                if (json.success && json.roommates?.length) {
-                    results.innerHTML = `
-                        <div class="results-box success">
-                            ${json.roommates.map(x => `
-                                <div class="roommate">
-                                    <div class="roommate-name">${x.name}</div>
-                                    <div class="roommate-branch">${x.branch}</div>
-                                    <div class="roommate-contact">${x.instagram || x.email}</div>
-                                </div>
-                            `).join("")}
-                        </div>
-                    `;
-                } else {
-                    results.innerHTML = `
-                        <div class="results-box error">
-                            ${json.message || "No roommates found yet."}
-                        </div>
-                    `;
-                }
-            } catch {
-                loader.style.display = "none";
-                results.innerHTML = `<div class="results-box error">Connection failed. Try again.</div>`;
-            } finally {
-                searchBtn.disabled = false;
-            }
-        };
-    </script>
+  if (type === "email") {
+    return `<a class="contact-link" href="mailto:${value}">
+      <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/gmail.svg">
+      ${value}
+    </a>`;
+  }
+
+  return value;
+};
+
+const shouldShowGate = () =>
+  !localStorage.getItem("supportPromptSeen");
+
+const revealResults = () => {
+  document.getElementById("revealOverlay")?.remove();
+  document.getElementById("resultsContent")?.classList.remove("blurred");
+  localStorage.setItem("supportPromptSeen", "true");
+};
+
+const openYouTubeAndReveal = () => {
+  window.open("https://www.youtube.com/@alrighttananya", "_blank");
+  revealResults();
+};
+
+form.onsubmit = async (e) => {
+    e.preventDefault();
+    loader.style.display = "block";
+    searchBtn.disabled = true;
+    results.innerHTML = "";
+
+    const data = Object.fromEntries(new FormData(form).entries());
+
+    data.branch = branchSelect.value === "OTHER"
+        ? customBranch.value.trim().toUpperCase()
+        : branchSelect.value;
+
+    data.room = data.room.trim().toUpperCase();
+    data.name = data.name.trim().toUpperCase();
+    data.hostelType = hostelType.value;
+    data.hostel = hostelSelect.value;
+
+    try {
+        const res = await fetch(`${API_BASE}/api/lookup`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+
+        const json = await res.json();
+        loader.style.display = "none";
+
+        if (json.success && json.roommates?.length) {
+            results.innerHTML = `
+              <div class="blur-wrap">
+                <div id="resultsContent" class="results-box success blurred">
+                  ${json.roommates.map(x => `
+                    <div class="roommate">
+                      <div class="roommate-name">${x.name}</div>
+                      <div class="roommate-branch">${x.branch}</div>
+                      <div class="roommate-contact">
+                        ${contactLink(x.contactType, x.contactValue)}
+                      </div>
+                    </div>
+                  `).join("")}
+                </div>
+
+                ${shouldShowGate() ? `
+                  <div class="reveal-overlay" id="revealOverlay">
+                    <div class="reveal-card">
+                      <h3>Before you connect!</h3>
+                      <p>
+                        FindMyRoomie is a free, student-built project with no ads.<br>
+                        If this helped you, consider supporting it ❤️
+                      </p>
+                      <div class="reveal-actions">
+                        <button class="primary" onclick="openYouTubeAndReveal()">
+                          Subscribe & Reveal
+                        </button>
+                        <button class="secondary" onclick="revealResults()">
+                          Reveal anyway
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ` : ""}
+              </div>
+            `;
+        } else {
+            results.innerHTML = `
+                <div class="results-box error">
+                    ${json.message || "No roommates found yet."}
+                </div>
+            `;
+        }
+    } catch {
+        loader.style.display = "none";
+        results.innerHTML = `<div class="results-box error">Connection failed. Try again.</div>`;
+    } finally {
+        searchBtn.disabled = false;
+    }
+};
+
+const mongoUri = "mongodb://definitely_not_here";
+const adminPassword = "password123";
+const prodSecrets = null;
+
+console.log(
+  "%cLooking under the hood?",
+  "color:#22c55e;font-weight:600;"
+);
+
+setTimeout(() => {
+  const threshold = 160;
+  const opened =
+    window.outerWidth - window.innerWidth > threshold ||
+    window.outerHeight - window.innerHeight > threshold;
+
+  if (opened) {
+    console.log("Nice try. Try architecture next.");
+  }
+}, 800);
+
+</script>
 </body>
 </html>

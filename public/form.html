@@ -66,7 +66,7 @@
             <div class="form-group">
                 <label>Preferred Contact</label>
                 <div class="social-compact">
-                    <select id="socialSelect" name="socialType" required>
+                    <select id="socialSelect" required>
                         <option value="" disabled selected>Platform</option>
                         <option value="instagram">Instagram</option>
                         <option value="discord">Discord</option>
@@ -97,178 +97,186 @@
         </div>
     </div>
 
-    <script>
-        const HOSTELS = {
-            girls: [
-                "Kopperundevi: AC with attached washroom - 2 sharing",
-                "Kopperundevi: Non-AC with attached washroom - 2 sharing",
-                "ESQ A: Non-AC with attached washroom - 2 sharing",
-                "ESQ A: Non-AC with attached washroom - 3 sharing",
-                "ESQ A: Non-AC with attached washroom - 4 sharing",
-                "ESQ B: Non-AC with attached washroom - 2 sharing",
-                "ESQ B: Non-AC with attached washroom - 3 sharing",
-                "Sannasi C: AC with attached washroom - 3 sharing",
-                "Sannasi C: Non-AC with attached washroom - 3 sharing",
-                "Malligai: Non-AC with common washroom - 2 sharing",
-                "Senbagam: Non-AC with common washroom - 3 sharing",
-                "Senbagam: Non-AC with common washroom - 6 sharing"
-            ],
-            boys: [
-                "Premium Boys: AC with attached washroom - 3 sharing",
-                "Green Pearl (Off-Campus): AC with attached washroom - 3 sharing",
-                "Green Pearl (Off-Campus): Non-AC with attached washroom - 3 sharing",
-                "Nelson Mandela: AC with attached washroom - 3 sharing",
-                "Agasthiyar: AC with attached washroom - 4 sharing",
-                "Sannasi A: AC with attached washroom - 3 sharing",
-                "Sannasi A: Non-AC with attached washroom - 3 sharing",
-                "Began: AC with common washroom - 3 sharing",
-                "Oori: AC with common washroom - 4 & 5 sharing",
-                "Manoranjitham: Non-AC with common washroom - 3 sharing",
-                "Kaari: Non-AC with common washroom - 4 & 5 sharing",
-                "Paari: Non-AC with common washroom - 4 & 5 sharing"
-            ]
-        };
+    
+<script>
+  const API_BASE =
+  location.hostname === "localhost"
+    ? "http://localhost:3000"
+    : "https://findmyroomie-production.up.railway.app";
 
-        const BRANCHES = [
-            "AERONAUTICAL ENGINEERING",
-            "AEROSPACE ENGINEERING",
-            "ARCHITECTURE",
-            "ARTIFICIAL INTELLIGENCE",
-            "AUTOMATION AND ROBOTICS",
-            "AUTOMOBILE ENGINEERING",
-            "AUTOMOBILE ENGINEERING (AUTOMOTIVE ELECTRONICS)",
-            "BIOMEDICAL ENGINEERING",
-            "BIOMEDICAL ENGINEERING (MACHINE INTELLIGENCE)",
-            "BIOTECHNOLOGY",
-            "BIOTECHNOLOGY (COMPUTATIONAL BIOLOGY)",
-            "BIOTECHNOLOGY (FOOD TECHNOLOGY)",
-            "BIOTECHNOLOGY (GENETIC ENGINEERING)",
-            "BIOTECHNOLOGY (REGENERATIVE MEDICINE)",
-            "CHEMICAL ENGINEERING",
-            "CIVIL ENGINEERING",
-            "CIVIL ENGINEERING (COMPUTER APPLICATIONS)",
-            "COMPUTER SCIENCE AND BUSINESS SYSTEM",
-            "COMPUTER SCIENCE AND ENGINEERING",
-            "COMPUTER SCIENCE AND ENGINEERING (AIML)",
-            "COMPUTER SCIENCE AND ENGINEERING (BIG DATA ANALYTICS)",
-            "COMPUTER SCIENCE AND ENGINEERING (BLOCKCHAIN TECHNOLOGY)",
-            "COMPUTER SCIENCE AND ENGINEERING (CLOUD COMPUTING)",
-            "COMPUTER SCIENCE AND ENGINEERING (CYBER SECURITY)",
-            "COMPUTER SCIENCE AND ENGINEERING (DATA SCIENCE)",
-            "COMPUTER SCIENCE AND ENGINEERING (DEVSECOPS)",
-            "COMPUTER SCIENCE AND ENGINEERING (GAMING TECHNOLOGY)",
-            "COMPUTER SCIENCE AND ENGINEERING (INFORMATION TECHNOLOGY)",
-            "COMPUTER SCIENCE AND ENGINEERING (IOT)",
-            "COMPUTER SCIENCE AND ENGINEERING (SOFTWARE ENGINEERING)",
-            "ELECTRICAL AND ELECTRONICS ENGINEERING",
-            "ELECTRONICS AND COMMUNICATION ENGINEERING",
-            "ELECTRONICS AND COMMUNICATION ENGINEERING (CYBER PHYSICAL SYSTEMS)",
-            "ELECTRONICS AND COMMUNICATION ENGINEERING (DATA SCIENCE)",
-            "ELECTRONICS AND COMPUTER ENGINEERING",
-            "ELECTRONICS AND INSTRUMENTATION ENGINEERING",
-            "ELECTRONICS ENGINEERING (VLSI DESIGN AND TECHNOLOGY)",
-            "INTERIOR DESIGN",
-            "MATHEMATICS AND COMPUTING",
-            "MECHANICAL ENGINEERING",
-            "MECHANICAL ENGINEERING (AUTOMATION AND ROBOTICS)",
-            "MECHANICAL ENGINEERING (ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING)",
-            "MECHATRONICS ENGINEERING",
-            "MECHATRONICS ENGINEERING (ROBOTICS)",
-            "NANOTECHNOLOGY",
-            "ARTIFICIAL INTELLIGENCE (INTEGRATED M.TECH)",
-            "COMPUTER SCIENCE AND ENGINEERING (INTEGRATED M.TECH)",
-            "COMPUTER SCIENCE AND ENGINEERING (CYBER SECURITY & DIGITAL FORENSICS) (INTEGRATED M.TECH)",
-            "COMPUTER SCIENCE AND ENGINEERING (DATA SCIENCE) (INTEGRATED M.TECH)",
-            "ELECTRONICS AND COMMUNICATION ENGINEERING (MICRO ELECTRONICS SYSTEM DESIGN) (INTEGRATED M.TECH)",
-            "MATERIAL SCIENCE AND ENGINEERING (INTEGRATED M.TECH)",
-            "OTHER"
-        ];
+const HOSTELS = {
+    girls: [
+        "Kopperundevi: AC with attached washroom - 2 sharing",
+        "Kopperundevi: Non-AC with attached washroom - 2 sharing",
+        "ESQ A: Non-AC with attached washroom - 2 sharing",
+        "ESQ A: Non-AC with attached washroom - 3 sharing",
+        "ESQ A: Non-AC with attached washroom - 4 sharing",
+        "ESQ B: Non-AC with attached washroom - 2 sharing",
+        "ESQ B: Non-AC with attached washroom - 3 sharing",
+        "Sannasi C: AC with attached washroom - 3 sharing",
+        "Sannasi C: Non-AC with attached washroom - 3 sharing",
+        "Malligai: Non-AC with common washroom - 2 sharing",
+        "Senbagam: Non-AC with common washroom - 3 sharing",
+        "Senbagam: Non-AC with common washroom - 6 sharing"
+    ],
+    boys: [
+        "Premium Boys: AC with attached washroom - 3 sharing",
+        "Green Pearl (Off-Campus): AC with attached washroom - 3 sharing",
+        "Green Pearl (Off-Campus): Non-AC with attached washroom - 3 sharing",
+        "Nelson Mandela: AC with attached washroom - 3 sharing",
+        "Agasthiyar: AC with attached washroom - 4 sharing",
+        "Sannasi A: AC with attached washroom - 3 sharing",
+        "Sannasi A: Non-AC with attached washroom - 3 sharing",
+        "Began: AC with common washroom - 3 sharing",
+        "Oori: AC with common washroom - 4 & 5 sharing",
+        "Manoranjitham: Non-AC with common washroom - 3 sharing",
+        "Kaari: Non-AC with common washroom - 4 & 5 sharing",
+        "Paari: Non-AC with common washroom - 4 & 5 sharing"
+    ]
+};
 
-        const form = document.getElementById("roomieForm");
-        const loader = document.getElementById("loader");
-        const successBox = document.getElementById("successBox");
-        const submitBtn = document.getElementById("submitBtn");
-        const statusMsg = document.getElementById("statusMessage");
-        const hostelType = document.getElementById("hostelType");
-        const hostelDropdown = document.getElementById("hostel");
-        const branchSelect = document.getElementById("branchSelect");
-        const customBranch = document.getElementById("customBranch");
-        const socialSelect = document.getElementById("socialSelect");
-        const socialInput = document.getElementById("socialInput");
+const BRANCHES = [
+    "AERONAUTICAL ENGINEERING","AEROSPACE ENGINEERING","ARCHITECTURE",
+    "ARTIFICIAL INTELLIGENCE","AUTOMATION AND ROBOTICS",
+    "AUTOMOBILE ENGINEERING","AUTOMOBILE ENGINEERING (AUTOMOTIVE ELECTRONICS)",
+    "BIOMEDICAL ENGINEERING","BIOMEDICAL ENGINEERING (MACHINE INTELLIGENCE)",
+    "BIOTECHNOLOGY","BIOTECHNOLOGY (COMPUTATIONAL BIOLOGY)",
+    "BIOTECHNOLOGY (FOOD TECHNOLOGY)","BIOTECHNOLOGY (GENETIC ENGINEERING)",
+    "BIOTECHNOLOGY (REGENERATIVE MEDICINE)","CHEMICAL ENGINEERING",
+    "CIVIL ENGINEERING","CIVIL ENGINEERING (COMPUTER APPLICATIONS)",
+    "COMPUTER SCIENCE AND BUSINESS SYSTEM",
+    "COMPUTER SCIENCE AND ENGINEERING",
+    "COMPUTER SCIENCE AND ENGINEERING (AIML)",
+    "COMPUTER SCIENCE AND ENGINEERING (BIG DATA ANALYTICS)",
+    "COMPUTER SCIENCE AND ENGINEERING (BLOCKCHAIN TECHNOLOGY)",
+    "COMPUTER SCIENCE AND ENGINEERING (CLOUD COMPUTING)",
+    "COMPUTER SCIENCE AND ENGINEERING (CYBER SECURITY)",
+    "COMPUTER SCIENCE AND ENGINEERING (DATA SCIENCE)",
+    "COMPUTER SCIENCE AND ENGINEERING (DEVSECOPS)",
+    "COMPUTER SCIENCE AND ENGINEERING (GAMING TECHNOLOGY)",
+    "COMPUTER SCIENCE AND ENGINEERING (INFORMATION TECHNOLOGY)",
+    "COMPUTER SCIENCE AND ENGINEERING (IOT)",
+    "COMPUTER SCIENCE AND ENGINEERING (SOFTWARE ENGINEERING)",
+    "ELECTRICAL AND ELECTRONICS ENGINEERING",
+    "ELECTRONICS AND COMMUNICATION ENGINEERING",
+    "ELECTRONICS AND COMMUNICATION ENGINEERING (CYBER PHYSICAL SYSTEMS)",
+    "ELECTRONICS AND COMMUNICATION ENGINEERING (DATA SCIENCE)",
+    "ELECTRONICS AND COMPUTER ENGINEERING",
+    "ELECTRONICS AND INSTRUMENTATION ENGINEERING",
+    "ELECTRONICS ENGINEERING (VLSI DESIGN AND TECHNOLOGY)",
+    "INTERIOR DESIGN","MATHEMATICS AND COMPUTING",
+    "MECHANICAL ENGINEERING",
+    "MECHANICAL ENGINEERING (AUTOMATION AND ROBOTICS)",
+    "MECHANICAL ENGINEERING (ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING)",
+    "MECHATRONICS ENGINEERING","MECHATRONICS ENGINEERING (ROBOTICS)",
+    "NANOTECHNOLOGY","OTHER"
+];
 
-        BRANCHES.forEach(b => {
-            const o = document.createElement("option");
-            o.value = b;
-            o.textContent = b;
-            branchSelect.appendChild(o);
+const form = document.getElementById("roomieForm");
+const loader = document.getElementById("loader");
+const successBox = document.getElementById("successBox");
+const submitBtn = document.getElementById("submitBtn");
+const statusMsg = document.getElementById("statusMessage");
+const hostelType = document.getElementById("hostelType");
+const hostelDropdown = document.getElementById("hostel");
+const branchSelect = document.getElementById("branchSelect");
+const customBranch = document.getElementById("customBranch");
+const socialSelect = document.getElementById("socialSelect");
+const socialInput = document.getElementById("socialInput");
+
+BRANCHES.forEach(b => branchSelect.appendChild(new Option(b, b)));
+
+branchSelect.onchange = () => {
+    customBranch.style.display = branchSelect.value === "OTHER" ? "block" : "none";
+    customBranch.required = branchSelect.value === "OTHER";
+};
+
+hostelType.onchange = () => {
+    hostelDropdown.innerHTML = `<option value="">Select block</option>`;
+    HOSTELS[hostelType.value]?.forEach(h => hostelDropdown.appendChild(new Option(h, h)));
+};
+
+socialSelect.onchange = () => {
+    if (socialSelect.value !== "email") {
+        socialInput.style.display = "block";
+        socialInput.required = true;
+    } else {
+        socialInput.style.display = "none";
+        socialInput.required = false;
+        socialInput.value = "";
+    }
+};
+
+form.onsubmit = async (e) => {
+    e.preventDefault();
+    loader.style.display = "block";
+    submitBtn.disabled = true;
+    successBox.style.display = "none";
+    statusMsg.style.display = "none";
+
+    const data = Object.fromEntries(new FormData(form).entries());
+
+    data.name = data.name.trim();
+    data.email = data.email.trim().toLowerCase();
+    data.room = data.room.trim().toUpperCase();
+    data.branch = branchSelect.value === "OTHER" ? customBranch.value.trim().toUpperCase() : branchSelect.value;
+    data.contactType = socialSelect.value;
+    data.contactValue = socialSelect.value !== "email" ? socialInput.value.trim() : "";
+
+    try {
+        const res = await fetch(`${API_BASE}/api/submit`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
         });
 
-        branchSelect.onchange = () => {
-            customBranch.style.display = branchSelect.value === "OTHER" ? "block" : "none";
-            customBranch.required = branchSelect.value === "OTHER";
-        };
+        loader.style.display = "none";
 
-        hostelType.onchange = () => {
-            hostelDropdown.innerHTML = `<option value="">Select block</option>`;
-            HOSTELS[hostelType.value]?.forEach(h => {
-                const o = document.createElement("option");
-                o.value = h;
-                o.textContent = h;
-                hostelDropdown.appendChild(o);
-            });
-        };
+        if (res.ok) {
+            successBox.style.display = "block";
+            form.reset();
+            socialInput.style.display = "none";
+        } else {
+            const result = await res.json();
+            statusMsg.textContent = result.message || "Error occurred.";
+            statusMsg.style.color = "#ef4444";
+            statusMsg.style.display = "block";
+        }
+    } catch {
+        loader.style.display = "none";
+        statusMsg.textContent = "Connection error. Try again.";
+        statusMsg.style.color = "#ef4444";
+        statusMsg.style.display = "block";
+    } finally {
+        submitBtn.disabled = false;
+    }
+};
 
-        socialSelect.onchange = () => {
-            if (socialSelect.value && socialSelect.value !== "email") {
-                socialInput.style.display = "block";
-                socialInput.required = true;
-            } else {
-                socialInput.style.display = "none";
-                socialInput.required = false;
-                socialInput.value = "";
-            }
-        };
+const mongoUri = "mongodb://definitely_not_here";
+const adminPassword = "password123";
+const prodSecrets = null;
 
-        form.onsubmit = async (e) => {
-            e.preventDefault();
-            loader.style.display = "block";
-            submitBtn.disabled = true;
-            successBox.style.display = "none";
-            statusMsg.style.display = "none";
+console.log(
+  "%cLooking under the hood?",
+  "color:#22c55e;font-weight:600;"
+);
 
-            const formData = new FormData(form);
-            const data = Object.fromEntries(formData.entries());
-            
-            data.branch = branchSelect.value === "OTHER" ? customBranch.value.toUpperCase() : branchSelect.value;
-            data.instagram = (socialSelect.value !== "email") ? `${socialSelect.value}:${socialInput.value.trim()}` : "";
+setTimeout(() => {
+  const threshold = 160;
+  const opened =
+    window.outerWidth - window.innerWidth > threshold ||
+    window.outerHeight - window.innerHeight > threshold;
 
-            try {
-                const res = await fetch("https://findmyroomie-production.up.railway.app/api/submit", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(data)
-                });
-                
-                loader.style.display = "none";
-                if (res.ok) {
-                    successBox.style.display = "block";
-                    form.reset();
-                    socialInput.style.display = "none";
-                } else {
-                    const result = await res.json();
-                    statusMsg.textContent = result.message || "Error occurred.";
-                    statusMsg.style.color = "#ef4444";
-                    statusMsg.style.display = "block";
-                }
-            } catch {
-                loader.style.display = "none";
-                statusMsg.textContent = "Connection error. Try again.";
-                statusMsg.style.color = "#ef4444";
-                statusMsg.style.display = "block";
-            } finally {
-                submitBtn.disabled = false;
-            }
-        };
-    </script>
+  if (opened) {
+    console.log("Nice try. Try architecture next.");
+  }
+}, 800);
+
+</script>
+<!--
+  This blur is not security.
+  Not rendering the data is.
+-->
+
 </body>
 </html>

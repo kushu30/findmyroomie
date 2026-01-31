@@ -435,3 +435,76 @@ button:disabled {
     .form-container { padding: 24px; }
     .form-row { grid-template-columns: 1fr; gap: 16px; }
 }
+
+.contact-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.contact-link img {
+  width: 16px;
+  height: 16px;
+}
+
+.blur-wrap {
+  position: relative;
+}
+
+.blurred {
+  filter: blur(10px);
+  pointer-events: none;
+  user-select: none;
+}
+
+.reveal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.reveal-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 320px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.reveal-card h3 {
+  margin: 0 0 8px;
+}
+
+.reveal-card p {
+  font-size: 14px;
+  color: #444;
+  margin-bottom: 16px;
+}
+
+.reveal-actions button {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.reveal-actions .primary {
+  background: #ef4444;
+  color: white;
+  margin-bottom: 8px;
+}
+
+.reveal-actions .secondary {
+  background: transparent;
+  color: #666;
+  font-size: 12px;
+}
