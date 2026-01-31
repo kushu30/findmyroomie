@@ -3,58 +3,195 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Register</title>
+  <title>Register - FindMyRoomie</title>
   <link rel="stylesheet" href="style.css" />
-  <script src="/hostels.js"></script>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+
+  <style>
+    .loader {
+      display: none;
+      margin-top: 10px;
+      color: #555;
+      font-size: 14px;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 3px solid #ccc;
+      border-top: 3px solid #333;
+      border-radius: 50%;
+      display: inline-block;
+      animation: spin 1s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .success-box {
+      display: none;
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 12px;
+      animation: fadeIn 0.4s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
 
 <body>
   <div class="container">
-    <h1>Register</h1>
+    <h1>Register Your Details</h1>
 
     <form id="roomieForm">
-      <input name="name" placeholder="Full Name" required />
-      <input type="email" name="email" placeholder="Email" required />
+      <input type="text" name="name" placeholder="Full Name" required />
+      <input type="email" name="email" placeholder="Email Address" required />
 
-      <select id="branchSelect">
-        <option value="">Select Branch</option>
+      <select id="branchSelect" required>
+        <option value="" disabled selected>Select Branch</option>
       </select>
-      <input id="branchOther" placeholder="Enter Branch" style="display:none" />
 
-      <input type="hidden" name="branch" id="branchFinal" required />
+      <input
+        type="text"
+        id="customBranch"
+        placeholder="Enter your branch (ALL CAPS)"
+        style="display:none;"
+      />
 
       <select name="hostelType" id="hostelType" required>
-        <option value="">Hostel Type</option>
+        <option value="" disabled selected>Select Hostel Type</option>
         <option value="boys">Boys</option>
         <option value="girls">Girls</option>
       </select>
 
       <select name="hostel" id="hostel" required>
-        <option value="">Select Hostel</option>
+        <option value="">-- Select Hostel --</option>
       </select>
 
-      <input name="room" placeholder="Room Number" required />
+      <input type="text" name="room" placeholder="Room Number" required />
 
       <div>
-        <label><input type="radio" name="contactType" value="instagram" checked /> Instagram</label>
-        <label><input type="radio" name="contactType" value="discord" /> Discord</label>
-        <label><input type="radio" name="contactType" value="phone" /> Phone</label>
-        <label><input type="radio" name="contactType" value="x" /> X</label>
-        <label><input type="radio" name="contactType" value="other" /> Other</label>
+        <strong>Preferred Contact</strong><br>
+
+        <label><input type="radio" name="socialType" value="instagram"> Instagram</label>
+        <label><input type="radio" name="socialType" value="discord"> Discord</label>
+        <label><input type="radio" name="socialType" value="phone"> Phone</label>
+        <label><input type="radio" name="socialType" value="email"> Email</label>
+
+        <input
+          type="text"
+          id="socialInput"
+          placeholder="Enter username / number"
+          style="display:none; margin-top:5px;"
+        />
       </div>
 
-      <input name="contactValue" placeholder="Contact" required />
+      <div style="background-color:#fff3cd;color:#000;padding:10px;border:1px solid #ffeeba;border-radius:5px;margin-bottom:10px;">
+        <strong>Note:</strong> Once submitted, details cannot be edited.
+      </div>
 
-      <button type="submit">Submit</button>
+      <button type="submit" id="submitBtn">Submit</button>
+
+      <div class="loader" id="loader">
+        <span class="spinner"></span>Submitting your details...
+      </div>
+
+      <div class="success-box" id="successBox">
+        🎉 <strong>Registered successfully!</strong><br>
+        You can now use the lookup page to find your roommate.
+      </div>
     </form>
 
-    <p id="status"></p>
+    <p id="statusMessage"></p>
+
+    <p style="text-align:center;margin-top:20px;">
+      Already registered? <a href="lookup.html">Go to Lookup</a>
+    </p>
   </div>
 
 <script>
+const HOSTELS = {
+  girls: [
+    "Kopperundevi: AC with attached washroom - 2 sharing",
+    "Kopperundevi: Non-AC with attached washroom - 2 sharing",
+    "ESQ A: Non-AC with attached washroom - 2 sharing",
+    "ESQ A: Non-AC with attached washroom - 3 sharing",
+    "ESQ A: Non-AC with attached washroom - 4 sharing",
+    "ESQ B: Non-AC with attached washroom - 2 sharing",
+    "ESQ B: Non-AC with attached washroom - 3 sharing",
+    "Sannasi C: AC with attached washroom - 3 sharing",
+    "Sannasi C: Non-AC with attached washroom - 3 sharing",
+    "Malligai: Non-AC with common washroom - 2 sharing",
+    "Senbagam: Non-AC with common washroom - 3 sharing",
+    "Senbagam: Non-AC with common washroom - 6 sharing"
+  ],
+  boys: [
+    "Premium Boys: AC with attached washroom - 3 sharing",
+    "Green Pearl (Off-Campus): AC with attached washroom - 3 sharing",
+    "Green Pearl (Off-Campus): Non-AC with attached washroom - 3 sharing",
+    "Nelson Mandela: AC with attached washroom - 3 sharing",
+    "Agasthiyar: AC with attached washroom - 4 sharing",
+    "Sannasi A: AC with attached washroom - 3 sharing",
+    "Sannasi A: Non-AC with attached washroom - 3 sharing",
+    "Began: AC with common washroom - 3 sharing",
+    "Oori: AC with common washroom - 4 & 5 sharing",
+    "Manoranjitham: Non-AC with common washroom - 3 sharing",
+    "Kaari: Non-AC with common washroom - 4 & 5 sharing",
+    "Paari: Non-AC with common washroom - 4 & 5 sharing"
+  ]
+};
+
+const BRANCHES = [...document.querySelectorAll("script")][0] && [
+  "AERONAUTICAL ENGINEERING","AEROSPACE ENGINEERING","ARCHITECTURE","ARTIFICIAL INTELLIGENCE",
+  "AUTOMATION AND ROBOTICS","AUTOMOBILE ENGINEERING","AUTOMOBILE ENGINEERING (AUTOMOTIVE ELECTRONICS)",
+  "BIOMEDICAL ENGINEERING","BIOMEDICAL ENGINEERING (MACHINE INTELLIGENCE)","BIOTECHNOLOGY",
+  "BIOTECHNOLOGY (COMPUTATIONAL BIOLOGY)","BIOTECHNOLOGY (FOOD TECHNOLOGY)",
+  "BIOTECHNOLOGY (GENETIC ENGINEERING)","BIOTECHNOLOGY (REGENERATIVE MEDICINE)",
+  "CHEMICAL ENGINEERING","CIVIL ENGINEERING","CIVIL ENGINEERING (COMPUTER APPLICATIONS)",
+  "COMPUTER SCIENCE AND BUSINESS SYSTEM","COMPUTER SCIENCE AND ENGINEERING",
+  "COMPUTER SCIENCE AND ENGINEERING (AIML)","COMPUTER SCIENCE AND ENGINEERING (BIG DATA ANALYTICS)",
+  "COMPUTER SCIENCE AND ENGINEERING (BLOCKCHAIN TECHNOLOGY)",
+  "COMPUTER SCIENCE AND ENGINEERING (CLOUD COMPUTING)",
+  "COMPUTER SCIENCE AND ENGINEERING (CYBER SECURITY)",
+  "COMPUTER SCIENCE AND ENGINEERING (DATA SCIENCE)",
+  "COMPUTER SCIENCE AND ENGINEERING (DEVSECOPS)",
+  "COMPUTER SCIENCE AND ENGINEERING (GAMING TECHNOLOGY)",
+  "COMPUTER SCIENCE AND ENGINEERING (INFORMATION TECHNOLOGY)",
+  "COMPUTER SCIENCE AND ENGINEERING (IOT)",
+  "COMPUTER SCIENCE AND ENGINEERING (SOFTWARE ENGINEERING)",
+  "ELECTRICAL AND ELECTRONICS ENGINEERING","ELECTRONICS AND COMMUNICATION ENGINEERING",
+  "ELECTRONICS AND COMMUNICATION ENGINEERING (CYBER PHYSICAL SYSTEMS)",
+  "ELECTRONICS AND COMMUNICATION ENGINEERING (DATA SCIENCE)",
+  "ELECTRONICS AND COMPUTER ENGINEERING","ELECTRONICS AND INSTRUMENTATION ENGINEERING",
+  "ELECTRONICS ENGINEERING (VLSI DESIGN AND TECHNOLOGY)","INTERIOR DESIGN",
+  "MATHEMATICS AND COMPUTING","MECHANICAL ENGINEERING",
+  "MECHANICAL ENGINEERING (AUTOMATION AND ROBOTICS)",
+  "MECHANICAL ENGINEERING (ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING)",
+  "MECHATRONICS ENGINEERING","MECHATRONICS ENGINEERING (ROBOTICS)",
+  "NANOTECHNOLOGY","OTHER"
+];
+
+const form = document.getElementById("roomieForm");
+const loader = document.getElementById("loader");
+const successBox = document.getElementById("successBox");
+const submitBtn = document.getElementById("submitBtn");
+const hostelType = document.getElementById("hostelType");
+const hostelDropdown = document.getElementById("hostel");
 const branchSelect = document.getElementById("branchSelect");
-const branchOther = document.getElementById("branchOther");
-const branchFinal = document.getElementById("branchFinal");
+const customBranch = document.getElementById("customBranch");
+const socialInput = document.getElementById("socialInput");
+
+let selectedSocial = null;
 
 BRANCHES.forEach(b => {
   const o = document.createElement("option");
@@ -63,41 +200,55 @@ BRANCHES.forEach(b => {
   branchSelect.appendChild(o);
 });
 
-branchSelect.onchange = () => {
-  if (branchSelect.value === "OTHER") {
-    branchOther.style.display = "block";
-    branchFinal.value = "";
-  } else {
-    branchOther.style.display = "none";
-    branchFinal.value = branchSelect.value;
-  }
-};
+branchSelect.addEventListener("change", () => {
+  customBranch.style.display = branchSelect.value === "OTHER" ? "block" : "none";
+});
 
-branchOther.oninput = () => {
-  branchFinal.value = branchOther.value.toUpperCase();
-};
-
-document.getElementById("hostelType").onchange = function () {
-  hostel.innerHTML = `<option value="">Select Hostel</option>`;
-  HOSTELS[this.value]?.forEach(h => {
-    const o = document.createElement("option");
-    o.value = h;
-    o.textContent = h;
-    hostel.appendChild(o);
+hostelType.addEventListener("change", () => {
+  hostelDropdown.innerHTML = `<option value="">-- Select Hostel --</option>`;
+  HOSTELS[hostelType.value]?.forEach(h => {
+    hostelDropdown.appendChild(new Option(h, h));
   });
-};
+});
 
-roomieForm.onsubmit = async e => {
+document.querySelectorAll("input[name='socialType']").forEach(r => {
+  r.addEventListener("change", () => {
+    selectedSocial = r.value;
+    socialInput.style.display = selectedSocial === "email" ? "none" : "block";
+  });
+});
+
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const data = Object.fromEntries(new FormData(roomieForm));
-  const r = await fetch("https://findmyroomie-production.up.railway.app/api/submit", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-  });
-  const j = await r.json();
-  status.textContent = j.message;
-};
+
+  loader.style.display = "block";
+  submitBtn.disabled = true;
+  successBox.style.display = "none";
+
+  const data = Object.fromEntries(new FormData(form).entries());
+  data.branch = branchSelect.value === "OTHER" ? customBranch.value.toUpperCase() : branchSelect.value;
+  data.instagram = selectedSocial && selectedSocial !== "email"
+    ? selectedSocial + ":" + socialInput.value.trim()
+    : "";
+
+  try {
+    await fetch("https://findmyroomie-production.up.railway.app/api/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+
+    loader.style.display = "none";
+    successBox.style.display = "block";
+    form.reset();
+    socialInput.style.display = "none";
+  } catch {
+    loader.style.display = "none";
+    alert("Something went wrong. Try again.");
+  } finally {
+    submitBtn.disabled = false;
+  }
+});
 </script>
 </body>
 </html>
