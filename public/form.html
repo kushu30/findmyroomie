@@ -3,186 +3,58 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Register - FindMyRoomie</title>
+  <title>Register</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+  <script src="/hostels.js"></script>
 </head>
 
 <body>
   <div class="container">
-    <h1>Register Your Details</h1>
+    <h1>Register</h1>
 
     <form id="roomieForm">
-      <input type="text" name="name" placeholder="Full Name" required />
-      <input type="email" name="email" placeholder="Email Address" required />
+      <input name="name" placeholder="Full Name" required />
+      <input type="email" name="email" placeholder="Email" required />
 
-      <select id="branchSelect" required>
-        <option value="" disabled selected>Select Branch</option>
+      <select id="branchSelect">
+        <option value="">Select Branch</option>
       </select>
+      <input id="branchOther" placeholder="Enter Branch" style="display:none" />
 
-      <input
-        type="text"
-        id="customBranch"
-        placeholder="Enter your branch (ALL CAPS)"
-        style="display:none;"
-      />
+      <input type="hidden" name="branch" id="branchFinal" required />
 
       <select name="hostelType" id="hostelType" required>
-        <option value="" disabled selected>Select Hostel Type</option>
+        <option value="">Hostel Type</option>
         <option value="boys">Boys</option>
         <option value="girls">Girls</option>
       </select>
 
       <select name="hostel" id="hostel" required>
-        <option value="">-- Select Hostel --</option>
+        <option value="">Select Hostel</option>
       </select>
 
-      <input type="text" name="room" placeholder="Room Number" required />
+      <input name="room" placeholder="Room Number" required />
 
-      <!-- SOCIAL CONTACT (RADIO BASED) -->
       <div>
-        <strong>Preferred Contact</strong><br>
-
-        <label>
-          <input type="radio" name="socialType" value="instagram">
-          Instagram
-        </label>
-
-        <label>
-          <input type="radio" name="socialType" value="discord">
-          Discord
-        </label>
-
-        <label>
-          <input type="radio" name="socialType" value="phone">
-          Phone
-        </label>
-
-        <label>
-          <input type="radio" name="socialType" value="email">
-          Email
-        </label>
-
-        <input
-          type="text"
-          id="socialInput"
-          placeholder="Enter username / number"
-          style="display:none; margin-top:5px;"
-        />
+        <label><input type="radio" name="contactType" value="instagram" checked /> Instagram</label>
+        <label><input type="radio" name="contactType" value="discord" /> Discord</label>
+        <label><input type="radio" name="contactType" value="phone" /> Phone</label>
+        <label><input type="radio" name="contactType" value="x" /> X</label>
+        <label><input type="radio" name="contactType" value="other" /> Other</label>
       </div>
 
-      <div style="background-color:#fff3cd;color:#000;padding:10px;border:1px solid #ffeeba;border-radius:5px;margin-bottom:10px;">
-        <strong>Note:</strong> Once submitted, details cannot be edited.<br><br>
-        Instagram recommended. Discord format: <code>discord(username)</code>.<br>
-        If email selected, your email will be shown by default.
-      </div>
+      <input name="contactValue" placeholder="Contact" required />
 
       <button type="submit">Submit</button>
     </form>
 
-    <p id="statusMessage"></p>
-
-    <p style="text-align:center;margin-top:20px;">
-      Already registered? <a href="lookup.html">Go to Lookup</a>
-    </p>
+    <p id="status"></p>
   </div>
 
 <script>
-const HOSTELS = {
-  girls: [
-    "Kopperundevi: AC with attached washroom - 2 sharing",
-    "Kopperundevi: Non-AC with attached washroom - 2 sharing",
-    "ESQ A: Non-AC with attached washroom - 2 sharing",
-    "ESQ A: Non-AC with attached washroom - 3 sharing",
-    "ESQ A: Non-AC with attached washroom - 4 sharing",
-    "ESQ B: Non-AC with attached washroom - 2 sharing",
-    "ESQ B: Non-AC with attached washroom - 3 sharing",
-    "Sannasi C: AC with attached washroom - 3 sharing",
-    "Sannasi C: Non-AC with attached washroom - 3 sharing",
-    "Malligai: Non-AC with common washroom - 2 sharing",
-    "Senbagam: Non-AC with common washroom - 3 sharing",
-    "Senbagam: Non-AC with common washroom - 6 sharing"
-  ],
-  boys: [
-    "Premium Boys: AC with attached washroom - 3 sharing",
-    "Green Pearl (Off-Campus): AC with attached washroom - 3 sharing",
-    "Green Pearl (Off-Campus): Non-AC with attached washroom - 3 sharing",
-    "Nelson Mandela: AC with attached washroom - 3 sharing",
-    "Agasthiyar: AC with attached washroom - 4 sharing",
-    "Sannasi A: AC with attached washroom - 3 sharing",
-    "Sannasi A: Non-AC with attached washroom - 3 sharing",
-    "Began: AC with common washroom - 3 sharing",
-    "Oori: AC with common washroom - 4 & 5 sharing",
-    "Manoranjitham: Non-AC with common washroom - 3 sharing",
-    "Kaari: Non-AC with common washroom - 4 & 5 sharing",
-    "Paari: Non-AC with common washroom - 4 & 5 sharing"
-  ]
-};
-
-const BRANCHES = [
-  "AERONAUTICAL ENGINEERING",
-  "AEROSPACE ENGINEERING",
-  "ARCHITECTURE",
-  "ARTIFICIAL INTELLIGENCE",
-  "AUTOMATION AND ROBOTICS",
-  "AUTOMOBILE ENGINEERING",
-  "AUTOMOBILE ENGINEERING (AUTOMOTIVE ELECTRONICS)",
-  "BIOMEDICAL ENGINEERING",
-  "BIOMEDICAL ENGINEERING (MACHINE INTELLIGENCE)",
-  "BIOTECHNOLOGY",
-  "BIOTECHNOLOGY (COMPUTATIONAL BIOLOGY)",
-  "BIOTECHNOLOGY (FOOD TECHNOLOGY)",
-  "BIOTECHNOLOGY (GENETIC ENGINEERING)",
-  "BIOTECHNOLOGY (REGENERATIVE MEDICINE)",
-  "CHEMICAL ENGINEERING",
-  "CIVIL ENGINEERING",
-  "CIVIL ENGINEERING (COMPUTER APPLICATIONS)",
-  "COMPUTER SCIENCE AND BUSINESS SYSTEM",
-  "COMPUTER SCIENCE AND ENGINEERING",
-  "COMPUTER SCIENCE AND ENGINEERING (AIML)",
-  "COMPUTER SCIENCE AND ENGINEERING (BIG DATA ANALYTICS)",
-  "COMPUTER SCIENCE AND ENGINEERING (BLOCKCHAIN TECHNOLOGY)",
-  "COMPUTER SCIENCE AND ENGINEERING (CLOUD COMPUTING)",
-  "COMPUTER SCIENCE AND ENGINEERING (CYBER SECURITY)",
-  "COMPUTER SCIENCE AND ENGINEERING (DATA SCIENCE)",
-  "COMPUTER SCIENCE AND ENGINEERING (DEVSECOPS)",
-  "COMPUTER SCIENCE AND ENGINEERING (GAMING TECHNOLOGY)",
-  "COMPUTER SCIENCE AND ENGINEERING (INFORMATION TECHNOLOGY)",
-  "COMPUTER SCIENCE AND ENGINEERING (IOT)",
-  "COMPUTER SCIENCE AND ENGINEERING (SOFTWARE ENGINEERING)",
-  "ELECTRICAL AND ELECTRONICS ENGINEERING",
-  "ELECTRONICS AND COMMUNICATION ENGINEERING",
-  "ELECTRONICS AND COMMUNICATION ENGINEERING (CYBER PHYSICAL SYSTEMS)",
-  "ELECTRONICS AND COMMUNICATION ENGINEERING (DATA SCIENCE)",
-  "ELECTRONICS AND COMPUTER ENGINEERING",
-  "ELECTRONICS AND INSTRUMENTATION ENGINEERING",
-  "ELECTRONICS ENGINEERING (VLSI DESIGN AND TECHNOLOGY)",
-  "INTERIOR DESIGN",
-  "MATHEMATICS AND COMPUTING",
-  "MECHANICAL ENGINEERING",
-  "MECHANICAL ENGINEERING (AUTOMATION AND ROBOTICS)",
-  "MECHANICAL ENGINEERING (ARTIFICIAL INTELLIGENCE AND MACHINE LEARNING)",
-  "MECHATRONICS ENGINEERING",
-  "MECHATRONICS ENGINEERING (ROBOTICS)",
-  "NANOTECHNOLOGY",
-  "ARTIFICIAL INTELLIGENCE (INTEGRATED M.TECH)",
-  "COMPUTER SCIENCE AND ENGINEERING (INTEGRATED M.TECH)",
-  "COMPUTER SCIENCE AND ENGINEERING (CYBER SECURITY & DIGITAL FORENSICS) (INTEGRATED M.TECH)",
-  "COMPUTER SCIENCE AND ENGINEERING (DATA SCIENCE) (INTEGRATED M.TECH)",
-  "ELECTRONICS AND COMMUNICATION ENGINEERING (MICRO ELECTRONICS SYSTEM DESIGN) (INTEGRATED M.TECH)",
-  "MATERIAL SCIENCE AND ENGINEERING (INTEGRATED M.TECH)",
-  "OTHER"
-];
-
-const form = document.getElementById("roomieForm");
-const statusMsg = document.getElementById("statusMessage");
-const hostelType = document.getElementById("hostelType");
-const hostelDropdown = document.getElementById("hostel");
 const branchSelect = document.getElementById("branchSelect");
-const customBranch = document.getElementById("customBranch");
-const socialInput = document.getElementById("socialInput");
-
-let selectedSocial = null;
+const branchOther = document.getElementById("branchOther");
+const branchFinal = document.getElementById("branchFinal");
 
 BRANCHES.forEach(b => {
   const o = document.createElement("option");
@@ -191,78 +63,41 @@ BRANCHES.forEach(b => {
   branchSelect.appendChild(o);
 });
 
-branchSelect.addEventListener("change", () => {
+branchSelect.onchange = () => {
   if (branchSelect.value === "OTHER") {
-    customBranch.style.display = "block";
-    customBranch.required = true;
+    branchOther.style.display = "block";
+    branchFinal.value = "";
   } else {
-    customBranch.style.display = "none";
-    customBranch.required = false;
-    customBranch.value = "";
+    branchOther.style.display = "none";
+    branchFinal.value = branchSelect.value;
   }
-});
+};
 
-customBranch.addEventListener("input", () => {
-  customBranch.value = customBranch.value.toUpperCase();
-});
+branchOther.oninput = () => {
+  branchFinal.value = branchOther.value.toUpperCase();
+};
 
-hostelType.addEventListener("change", () => {
-  hostelDropdown.innerHTML = `<option value="">-- Select Hostel --</option>`;
-  HOSTELS[hostelType.value]?.forEach(h => {
+document.getElementById("hostelType").onchange = function () {
+  hostel.innerHTML = `<option value="">Select Hostel</option>`;
+  HOSTELS[this.value]?.forEach(h => {
     const o = document.createElement("option");
     o.value = h;
     o.textContent = h;
-    hostelDropdown.appendChild(o);
+    hostel.appendChild(o);
   });
-});
+};
 
-document.querySelectorAll("input[name='socialType']").forEach(radio => {
-  radio.addEventListener("change", () => {
-    selectedSocial = radio.value;
-    if (selectedSocial === "email") {
-      socialInput.style.display = "none";
-      socialInput.required = false;
-      socialInput.value = "";
-    } else {
-      socialInput.style.display = "block";
-      socialInput.required = true;
-    }
-  });
-});
-
-form.addEventListener("submit", async (e) => {
+roomieForm.onsubmit = async e => {
   e.preventDefault();
-
-  const data = Object.fromEntries(new FormData(form).entries());
-
-  data.branch = branchSelect.value === "OTHER"
-    ? customBranch.value.toUpperCase()
-    : branchSelect.value;
-
-  if (selectedSocial && selectedSocial !== "email") {
-    data.instagram = selectedSocial + ":" + socialInput.value.trim();
-  } else {
-    data.instagram = "";
-  }
-
-  try {
-    const res = await fetch("https://findmyroomie-production.up.railway.app/api/submit", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    });
-
-    const result = await res.json();
-    statusMsg.textContent = result.message;
-    statusMsg.style.color = "green";
-    form.reset();
-    customBranch.style.display = "none";
-    socialInput.style.display = "none";
-  } catch {
-    statusMsg.textContent = "Something went wrong. Try again.";
-    statusMsg.style.color = "red";
-  }
-});
+  const data = Object.fromEntries(new FormData(roomieForm));
+  const r = await fetch("https://findmyroomie-production.up.railway.app/api/submit", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
+  const j = await r.json();
+  status.textContent = j.message;
+};
 </script>
 </body>
 </html>
