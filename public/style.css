@@ -432,6 +432,10 @@ button:disabled {
 }
 
 @media (max-width: 480px) {
+    body {
+        background-size: 64px 112px;
+        background-position: 0 0, 0 0, 32px 56px, 32px 56px, 0 0, 32px 56px;
+    }
     .form-container { padding: 24px; }
     .form-row { grid-template-columns: 1fr; gap: 16px; }
 }
