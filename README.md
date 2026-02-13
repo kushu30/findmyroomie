@@ -41,23 +41,6 @@ A short video demonstration is included in the repository, along with the offici
 - **Other Tools**:  
   CORS for cross-origin requests, Body-parser for handling JSON data, and basic form validation.
 
-## Maintainer
-
-Developed and maintained by **Kushagra Shukla**.
-
-For any queries, feel free to raise an issue or reach out directly.
-
-## Screenshots 
-<img width="1860" height="1125" alt="image" src="https://github.com/user-attachments/assets/c1d1a21a-34be-43fe-a987-4d53b04ec9f9" />
-<img width="1860" height="1125" alt="image" src="https://github.com/user-attachments/assets/b9de3ae6-ad96-46a1-9822-2118872eaac7" />
-<img width="1860" height="1125" alt="image" src="https://github.com/user-attachments/assets/50285210-4013-4670-88f8-b6b7f9df2f85" />
-<img width="1860" height="1125" alt="image" src="https://github.com/user-attachments/assets/cf16885d-7119-4d6e-80ed-abef8b30e073" />
-
-
-## Demo Video (Click the link to view)
-
-![Demo Video](https://github.com/user-attachments/assets/fca28698-9a26-48db-ac8e-eb8809762546)
-
 ## Made by:
 - [@kushu30](https://www.github.com/kushu30)
 - [@ananyarana21](https://www.github.com/ananyarana21)

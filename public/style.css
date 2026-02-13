@@ -177,11 +177,15 @@ header {
 
 footer {
     border-top: 2px solid var(--border);
-    padding: 80px 0;
+    padding: 40px 0 80px 0;
     text-align: center;
 }
 
 .footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
     font-size: 16px;
     font-weight: 500;
     color: var(--text-muted);
@@ -193,6 +197,25 @@ footer {
     text-decoration-thickness: 2px;
     text-underline-offset: 4px;
     font-weight: 800;
+}
+
+.social-link {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    transition: opacity 0.2s;
+    margin: 0 2px;
+}
+
+.social-link:hover {
+    opacity: 0.7;
+}
+
+.social-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
 }
 
 .form-container {
