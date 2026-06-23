@@ -361,6 +361,31 @@
             row.appendChild(input);
             row.appendChild(removeBtn);
             contactsContainer.appendChild(row);
+            
+            // Auto-fill +91 and enforce 10 digits
+            if (platform === "phone") {
+                if (!value) input.value = "+91 ";
+                input.addEventListener('input', function() {
+                    let val = this.value;
+                    // ensure starts with +
+                    if (val.length > 0 && !val.startsWith('+')) {
+                        val = '+' + val.replace(/\+/g, '');
+                    }
+                    
+                    // Split at space to find country code vs number
+                    let parts = val.split(' ');
+                    if (parts.length > 1) {
+                        let cc = parts[0];
+                        let num = parts.slice(1).join('').replace(/\D/g, '');
+                        if (num.length > 10) num = num.substring(0, 10);
+                        this.value = cc + ' ' + num;
+                    } else {
+                        // If no space, just limit total digits to 14 (+, CC up to 3, 10 digits)
+                        if (val.length > 15) this.value = val.substring(0, 15);
+                    }
+                });
+            }
+            
             input.focus();
         }
 

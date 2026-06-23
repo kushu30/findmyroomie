@@ -11,8 +11,25 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 24px;
+            position: relative;
         }
+
+        .back-link {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #52525b;
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+        .back-link:hover {
+            color: #000;
+            text-decoration: underline;
+        }
+
         .login-card {
             background: #ffffff;
             border: 3px solid #000;
@@ -146,6 +163,7 @@
     <script src="https://accounts.google.com/gsi/client"></script>
 </head>
 <body>
+    <a href="index.html" class="back-link">← Back to Home</a>
     <div class="login-card">
         <div class="login-logo">findmyroomie.</div>
         <span class="login-badge">SRM KTR</span>

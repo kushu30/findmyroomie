@@ -120,12 +120,13 @@ header {
 .btn-primary {
     background: var(--primary);
     color: white;
-    box-shadow: 0 10px 20px -10px var(--primary);
+    border: 2px solid var(--text-main);
+    box-shadow: 4px 4px 0px var(--text-main);
 }
 
 .btn-primary:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 30px -10px var(--primary);
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px var(--text-main);
     background: var(--primary-hover);
 }
 
