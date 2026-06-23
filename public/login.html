@@ -134,6 +134,13 @@
             color: #9ca3af;
             font-size: 0.85rem;
         }
+        .login-disclaimer {
+            font-size: 0.8rem;
+            color: #71717a;
+            margin-top: 20px;
+            line-height: 1.4;
+            font-weight: 500;
+        }
     </style>
     <!-- Google Identity Services — loaded eagerly -->
     <script src="https://accounts.google.com/gsi/client"></script>
@@ -149,6 +156,10 @@
         </div>
 
         <div class="error-msg" id="errorMsg"></div>
+
+        <p class="login-disclaimer">
+            We don't collect passwords or personal information. We use Google Login for secure, OTP-free verification.
+        </p>
 
         <!-- Developer fallback — shown only when no Google Client ID is configured -->
         <div class="dev-section" id="devSection" style="display: none;">

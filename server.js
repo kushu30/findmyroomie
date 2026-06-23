@@ -108,6 +108,7 @@ const roommateSchema = new mongoose.Schema({
   room: String,
   contacts: [contactSchema],
   registered: { type: Boolean, default: false },
+  hostelEdits: { type: Number, default: 0 },
   registeredAt: { type: Date, default: Date.now }
 });
 
@@ -236,6 +237,25 @@ app.post("/api/register", authenticateToken, async (req, res) => {
           .map(c => ({ platform: c.platform, value: norm(c.value) }))
       : [];
 
+    // Fetch existing user to check limits
+    const currentUser = await Roommate.findOne({ email: req.user.email });
+    if (!currentUser) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const isHostelChanging = currentUser.registered && (
+      currentUser.hostelType !== hostelType ||
+      currentUser.hostel !== norm(hostel) ||
+      currentUser.room !== normUpper(room)
+    );
+
+    if (isHostelChanging && currentUser.hostelEdits >= 1) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "You have already changed your hostel details once. Further changes are not allowed." 
+      });
+    }
+
     const updatedData = {
       name: norm(name),          // preserve original Google name case, just trim
       branch: normUpper(branch), // branches are all-caps
@@ -246,9 +266,14 @@ app.post("/api/register", authenticateToken, async (req, res) => {
       registered: true
     };
 
+    const updateQuery = { $set: updatedData };
+    if (isHostelChanging) {
+      updateQuery.$inc = { hostelEdits: 1 };
+    }
+
     const user = await Roommate.findOneAndUpdate(
       { email: req.user.email },
-      { $set: updatedData },
+      updateQuery,
       { new: true, runValidators: false } // skip validators to avoid enum issues on update
     );
 
@@ -281,7 +306,7 @@ app.get("/api/roommates", authenticateToken, async (req, res) => {
       room: user.room,
       email: { $ne: user.email },
       registered: true
-    }).select("name branch contacts -_id");
+    }).select("name branch email contacts -_id");
 
     res.json({ success: true, roommates });
   } catch (err) {
