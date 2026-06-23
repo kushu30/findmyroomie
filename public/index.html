@@ -21,10 +21,16 @@
                 <h1>Connect before you move.</h1>
                 <p>A minimalist platform for students to find their roommates, connect and eliminate moving day anxiety.</p>
                 
-                <div class="cta-group">
-                    <a href="form.html" class="btn btn-primary">Get Started</a>
-                    <a href="lookup.html" class="btn btn-secondary">Find Roommates</a>
+                <div class="cta-group" id="ctaGroup">
+                    <a href="login.html" class="btn btn-primary">Get Started</a>
                 </div>
+                <script>
+                    if (localStorage.getItem("auth_token")) {
+                        document.getElementById("ctaGroup").innerHTML = `
+                            <a href="dashboard.html" class="btn btn-primary">Go to Dashboard</a>
+                        `;
+                    }
+                </script>
             </section>
 
             <section class="features">

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | FindMyRoomie</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .login-card {
+            background: #ffffff;
+            border: 3px solid #000;
+            box-shadow: 8px 8px 0px #000;
+            border-radius: 4px;
+            padding: 40px 36px;
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+        }
+        .login-logo {
+            font-size: 2rem;
+            font-weight: 900;
+            letter-spacing: -2px;
+            text-transform: lowercase;
+            margin-bottom: 6px;
+        }
+        .login-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            background: #ef4444;
+            color: white;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 24px;
+        }
+        .login-subtitle {
+            color: #52525b;
+            font-size: 0.95rem;
+            margin-bottom: 28px;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+        .google-btn-area {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 16px;
+            min-height: 44px;
+            align-items: center;
+        }
+        .google-not-configured {
+            font-size: 0.85rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+        /* Dev fallback */
+        .dev-section {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 2px dashed #e4e4e7;
+        }
+        .dev-label {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #ef4444;
+            margin-bottom: 12px;
+        }
+        .dev-fields {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .dev-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            font-weight: 500;
+            outline: none;
+            box-sizing: border-box;
+        }
+        .dev-input:focus {
+            border-color: #000;
+        }
+        .dev-btn {
+            width: 100%;
+            padding: 12px;
+            background: #000;
+            color: white;
+            border: 2px solid #000;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 800;
+            font-family: inherit;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 4px 4px 0px #ef4444;
+            transition: all 0.1s;
+        }
+        .dev-btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px #ef4444;
+        }
+        .dev-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: none;
+        }
+        .dev-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 4px 4px 0px #d1d5db;
+        }
+        .error-msg {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 14px;
+            font-weight: 600;
+            display: none;
+        }
+        .loading-text {
+            color: #9ca3af;
+            font-size: 0.85rem;
+        }
+    </style>
+    <!-- Google Identity Services — loaded eagerly -->
+    <script src="https://accounts.google.com/gsi/client"></script>
+</head>
+<body>
+    <div class="login-card">
+        <div class="login-logo">findmyroomie.</div>
+        <span class="login-badge">SRM KTR</span>
+        <p class="login-subtitle">Sign in with your <strong>@srmist.edu.in</strong> Google account to find your hostel roommate.</p>
+
+        <div class="google-btn-area" id="googleBtnArea">
+            <div class="loading-text">Initializing...</div>
+        </div>
+
+        <div class="error-msg" id="errorMsg"></div>
+
+        <!-- Developer fallback — shown only when no Google Client ID is configured -->
+        <div class="dev-section" id="devSection" style="display: none;">
+            <div class="dev-label">Dev Mode — No Google Client ID</div>
+            <div class="dev-fields">
+                <input type="email" id="devEmail" class="dev-input" placeholder="student@srmist.edu.in" value="testuser@srmist.edu.in">
+                <input type="text" id="devName" class="dev-input" placeholder="Full Name" value="Test User">
+                <button type="button" class="dev-btn" id="devBtn">Sign In (Mock)</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // If already authenticated, redirect immediately
+        if (getToken()) {
+            window.location.href = "dashboard.html";
+        }
+
+        const errorMsg   = document.getElementById("errorMsg");
+        const googleArea = document.getElementById("googleBtnArea");
+        const devSection = document.getElementById("devSection");
+        const devBtn     = document.getElementById("devBtn");
+
+        function showError(msg) {
+            errorMsg.textContent = msg;
+            errorMsg.style.display = "block";
+        }
+
+        async function handleAuthSuccess(token, registered) {
+            setToken(token);
+            window.location.href = registered ? "dashboard.html" : "form.html";
+        }
+
+        // Called by Google Sign-In
+        async function handleGoogleCredential(response) {
+            errorMsg.style.display = "none";
+            try {
+                const res  = await fetch(`${API_BASE}/api/auth/google`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ credential: response.credential })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    await handleAuthSuccess(data.token, data.registered);
+                } else {
+                    showError(data.message || "Sign-in failed. Please try again.");
+                }
+            } catch {
+                showError("Network error. Please check your connection.");
+            }
+        }
+
+        // Dev mode mock sign-in
+        devBtn.onclick = async () => {
+            errorMsg.style.display = "none";
+            const email = document.getElementById("devEmail").value.trim();
+            const name  = document.getElementById("devName").value.trim();
+
+            if (!email.endsWith("@srmist.edu.in")) {
+                showError("Only @srmist.edu.in emails are allowed.");
+                return;
+            }
+            if (!name) {
+                showError("Please enter your name.");
+                return;
+            }
+
+            devBtn.disabled = true;
+            devBtn.textContent = "Signing in...";
+
+            try {
+                // Build a mock 3-part JWT-like token the server can decode without signature verification
+                const header  = btoa(JSON.stringify({ alg: "none" }));
+                const payload = btoa(JSON.stringify({ email, name }));
+                const mockCredential = `${header}.${payload}.dev-signature`;
+
+                const res  = await fetch(`${API_BASE}/api/auth/google`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ credential: mockCredential })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    await handleAuthSuccess(data.token, data.registered);
+                } else {
+                    showError(data.message || "Sign-in failed.");
+                    devBtn.disabled = false;
+                    devBtn.textContent = "Sign In (Mock)";
+                }
+            } catch {
+                showError("Network error. Is the server running?");
+                devBtn.disabled = false;
+                devBtn.textContent = "Sign In (Mock)";
+            }
+        };
+
+        // Initialize — fetch config then setup correct login method
+        async function initAuth() {
+            try {
+                const res    = await fetch(`${API_BASE}/api/config`);
+                const config = await res.json();
+
+                if (config.googleClientId) {
+                    // Setup Google One-Tap / Sign-In button
+                    google.accounts.id.initialize({
+                        client_id: config.googleClientId,
+                        callback:  handleGoogleCredential,
+                        auto_select: false
+                    });
+                    googleArea.innerHTML = ""; // clear loading text
+                    google.accounts.id.renderButton(googleArea, {
+                        theme: "outline",
+                        size:  "large",
+                        width: 280,
+                        text:  "signin_with"
+                    });
+                } else {
+                    googleArea.innerHTML = '<span class="google-not-configured">Google Sign-In not configured.</span>';
+                    devSection.style.display = "block";
+                }
+            } catch (err) {
+                console.error("Config fetch failed:", err);
+                googleArea.innerHTML = '<span class="google-not-configured">Could not load config.</span>';
+                devSection.style.display = "block";
+            }
+        }
+
+        initAuth();
+    </script>
+</body>
+</html>

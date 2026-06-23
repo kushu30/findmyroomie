@@ -5,29 +5,36 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const path = require("path");
 const rateLimit = require("express-rate-limit");
+const jwt = require("jsonwebtoken");
+const { OAuth2Client } = require("google-auth-library");
 
 const app = express();
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGODB_URI;
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const JWT_SECRET = process.env.JWT_SECRET || "findmyroomie-dev-secret-change-in-prod";
 
-if (!PORT || !MONGO_URI) {
-  console.error("Missing PORT or MONGODB_URI");
+if (!MONGO_URI) {
+  console.error("Missing MONGODB_URI");
   process.exit(1);
 }
 
 app.use(cors({
   origin: true,
-  methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type"]
+  methods: ["GET", "POST", "PUT", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
+// --- MongoDB ---
 mongoose.set("bufferCommands", false);
 mongoose.connect(MONGO_URI, {
   serverSelectionTimeoutMS: 5000
+}).catch(err => {
+  console.error("MongoDB initial connection error:", err.message);
 });
 
 mongoose.connection.on("connected", () => {
@@ -38,146 +45,248 @@ mongoose.connection.on("error", (err) => {
   console.error("MongoDB error:", err.message);
 });
 
-app.use((req, res, next) => {
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(204);
+process.on("unhandledRejection", (reason) => {
+  console.error("Unhandled Rejection:", reason);
+});
+
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught Exception:", err);
+});
+
+// --- Helpers ---
+const norm = (s) => s?.trim();
+const normUpper = (s) => s?.trim().toUpperCase();
+
+// --- Middleware ---
+// JWT auth middleware
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ success: false, message: "Authentication required" });
   }
-  if (req.path.startsWith("/api") && mongoose.connection.readyState !== 1) {
-    return res.status(503).json({
-      success: false,
-      message: "Database not connected"
-    });
+  jwt.verify(token, JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ success: false, message: "Session expired. Please log in again." });
+    }
+    req.user = decoded;
+    next();
+  });
+}
+
+// Rate limiter for /api
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 150,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+app.use("/api", apiLimiter);
+
+// DB check middleware (but skip /api/config which doesn't need the DB)
+app.use((req, res, next) => {
+  if (req.method === "OPTIONS") return res.sendStatus(204);
+  const dbFreeRoutes = ["/api/config"];
+  if (req.path.startsWith("/api") && !dbFreeRoutes.includes(req.path) && mongoose.connection.readyState !== 1) {
+    return res.status(503).json({ success: false, message: "Database not connected. Please try again shortly." });
   }
   next();
 });
 
-const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  standardHeaders: true,
-  legacyHeaders: false
-});
-
-app.use("/api", apiLimiter);
-
-const norm = (s) => s?.trim();
-const normUpper = (s) => s?.trim().toUpperCase();
-const normLower = (s) => s?.trim().toLowerCase();
+// --- Schema ---
+const contactSchema = new mongoose.Schema({
+  platform: { type: String, enum: ["email", "phone", "snapchat", "instagram", "discord", "x", "other"] },
+  value: String
+}, { _id: false });
 
 const roommateSchema = new mongoose.Schema({
   name: String,
-  email: { type: String, lowercase: true },
-  branch: { type: String, uppercase: true },
+  email: { type: String, lowercase: true, unique: true },
+  branch: String,
   hostelType: String,
   hostel: String,
   room: String,
-  contactType: {
-    type: String,
-    enum: ["instagram", "discord", "phone", "x", "other"]
-  },
-  contactValue: String,
+  contacts: [contactSchema],
+  registered: { type: Boolean, default: false },
   registeredAt: { type: Date, default: Date.now }
-}, { strict: false });
-
-roommateSchema.index(
-  { email: 1, hostel: 1, room: 1 },
-  { unique: true }
-);
+});
 
 const Roommate = mongoose.model("Roommate", roommateSchema);
 
-app.post("/api/submit", async (req, res) => {
-  try {
-    const email = normLower(req.body.email);
+// --- Google OAuth client ---
+const oauthClient = GOOGLE_CLIENT_ID ? new OAuth2Client(GOOGLE_CLIENT_ID) : null;
 
-    if (!email || !email.endsWith("@srmist.edu.in")) {
-      return res.status(400).json({
+// ==============================
+// ROUTES
+// ==============================
+
+// Config endpoint — no DB needed, safe to always call
+app.get("/api/config", (req, res) => {
+  res.json({
+    googleClientId: process.env.GOOGLE_CLIENT_ID || null
+  });
+});
+
+// Google Sign-In
+app.post("/api/auth/google", async (req, res) => {
+  const { credential } = req.body;
+  if (!credential) {
+    return res.status(400).json({ success: false, message: "Google credential is required" });
+  }
+
+  try {
+    let email, name;
+
+    if (oauthClient) {
+      // Production: verify real Google token
+      const ticket = await oauthClient.verifyIdToken({
+        idToken: credential,
+        audience: GOOGLE_CLIENT_ID,
+      });
+      const payload = ticket.getPayload();
+      email = payload.email.toLowerCase();
+      name = payload.name;
+    } else {
+      // Dev mode: decode mock token (no signature verification)
+      const parts = credential.split(".");
+      if (parts.length !== 3) throw new Error("Invalid token format");
+      // Add padding for base64
+      const padded = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+      const padding = (4 - padded.length % 4) % 4;
+      const payload = JSON.parse(Buffer.from(padded + "=".repeat(padding), "base64").toString("utf8"));
+      email = payload.email?.toLowerCase();
+      name = payload.name;
+      if (!email || !name) throw new Error("Mock token missing email or name fields");
+      console.warn("[DEV MODE] Skipping Google token verification — configure GOOGLE_CLIENT_ID for production.");
+    }
+
+    const adminEmails = process.env.ADMIN_EMAIL 
+      ? process.env.ADMIN_EMAIL.toLowerCase().split(",").map(e => e.trim()) 
+      : [];
+
+    if (!email.endsWith("@srmist.edu.in") && !adminEmails.includes(email)) {
+      return res.status(403).json({
         success: false,
-        message: "Only @srmist.edu.in emails are allowed"
+        message: "Only @srmist.edu.in email accounts are allowed."
       });
     }
 
-    const data = {
-      name: normUpper(req.body.name),
-      email,
-      branch: normUpper(req.body.branch),
-      hostelType: req.body.hostelType,
-      hostel: norm(req.body.hostel),
-      room: normUpper(req.body.room),
-      contactType: req.body.contactType || "email",
-      contactValue: norm(req.body.contactValue)
-    };
+    // Find or create user
+    let user = await Roommate.findOne({ email });
+    if (!user) {
+      user = await Roommate.create({
+        email,
+        name, // store name as-is from Google (proper case)
+        registered: false,
+        contacts: []
+      });
+    } else {
+      // Update name if it changed in Google account
+      if (user.name !== name) {
+        user.name = name;
+        await user.save();
+      }
+    }
 
-    await Roommate.create(data);
+    const token = jwt.sign({ email: user.email }, JWT_SECRET, { expiresIn: "7d" });
 
     res.json({
       success: true,
-      message: "Registration successful"
+      token,
+      registered: user.registered,
+      name: user.name,
+      email: user.email
     });
-  } catch (e) {
-    if (e.code === 11000) {
-      return res.status(409).json({
-        success: false,
-        message: "Already registered"
-      });
-    }
-
-    res.status(500).json({
-      success: false,
-      message: e.message
-    });
+  } catch (err) {
+    console.error("Google auth failed:", err.message);
+    res.status(401).json({ success: false, message: "Authentication failed. " + err.message });
   }
 });
 
-
-app.post("/api/lookup", async (req, res) => {
+// Get current user profile
+app.get("/api/me", authenticateToken, async (req, res) => {
   try {
-    const name = normUpper(req.body.name);
-    const email = normLower(req.body.email);
-    const branch = normUpper(req.body.branch);
-    const hostelType = req.body.hostelType;
-    const hostel = norm(req.body.hostel);
-    const room = normUpper(req.body.room);
+    const user = await Roommate.findOne({ email: req.user.email });
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    res.json({ success: true, user });
+  } catch (err) {
+    console.error("GET /api/me error:", err);
+    res.status(500).json({ success: false, message: "Failed to fetch profile" });
+  }
+});
 
-    const user = await Roommate.findOne({
-      name,
-      email,
-      branch,
+// Save or update profile
+app.post("/api/register", authenticateToken, async (req, res) => {
+  try {
+    const { name, branch, hostelType, hostel, room, contacts } = req.body;
+
+    // Input validation
+    if (!norm(name)) return res.status(400).json({ success: false, message: "Name is required" });
+    if (!norm(branch)) return res.status(400).json({ success: false, message: "Branch is required" });
+    if (!hostelType) return res.status(400).json({ success: false, message: "Hostel type is required" });
+    if (!norm(hostel)) return res.status(400).json({ success: false, message: "Hostel block is required" });
+    if (!normUpper(room)) return res.status(400).json({ success: false, message: "Room number is required" });
+
+    // Sanitize contacts: filter out entries with empty values
+    const cleanContacts = Array.isArray(contacts)
+      ? contacts
+          .filter(c => c.platform && norm(c.value))
+          .map(c => ({ platform: c.platform, value: norm(c.value) }))
+      : [];
+
+    const updatedData = {
+      name: norm(name),          // preserve original Google name case, just trim
+      branch: normUpper(branch), // branches are all-caps
       hostelType,
-      hostel,
-      room
-    });
+      hostel: norm(hostel),
+      room: normUpper(room),
+      contacts: cleanContacts,
+      registered: true
+    };
+
+    const user = await Roommate.findOneAndUpdate(
+      { email: req.user.email },
+      { $set: updatedData },
+      { new: true, runValidators: false } // skip validators to avoid enum issues on update
+    );
 
     if (!user) {
-      return res.json({
-        success: false,
-        message: "No match"
-      });
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    res.json({ success: true, message: "Profile saved!", user });
+  } catch (err) {
+    console.error("POST /api/register error:", err);
+    res.status(500).json({ success: false, message: "Failed to save profile. " + err.message });
+  }
+});
+
+// Get roommate matches
+app.get("/api/roommates", authenticateToken, async (req, res) => {
+  try {
+    const user = await Roommate.findOne({ email: req.user.email });
+    if (!user || !user.registered) {
+      return res.status(400).json({ success: false, message: "Please complete your profile first." });
+    }
+
+    if (!user.hostel || !user.room || !user.hostelType) {
+      return res.json({ success: true, roommates: [] });
     }
 
     const roommates = await Roommate.find({
-      hostelType,
-      hostel,
-      room,
-      email: { $ne: email }
-    }).select("name branch contactType contactValue -_id");
+      hostelType: user.hostelType,
+      hostel: user.hostel,
+      room: user.room,
+      email: { $ne: user.email },
+      registered: true
+    }).select("name branch contacts -_id");
 
-    if (!roommates.length) {
-      return res.json({
-        success: false,
-        message: "No roommates yet"
-      });
-    }
-
-    res.json({
-      success: true,
-      roommates
-    });
-  } catch {
-    res.status(500).json({
-      success: false,
-      message: "Lookup failed"
-    });
+    res.json({ success: true, roommates });
+  } catch (err) {
+    console.error("GET /api/roommates error:", err);
+    res.status(500).json({ success: false, message: "Failed to fetch roommates." });
   }
 });
 
