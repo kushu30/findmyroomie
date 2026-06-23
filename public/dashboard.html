@@ -184,6 +184,15 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        @media (max-width: 480px) {
+            .profile-grid { grid-template-columns: 1fr; }
+            .yt-card { padding: 20px 16px; margin: 10px; }
+            .yt-title { font-size: 1rem; }
+            .yt-desc { font-size: 0.8rem; margin-bottom: 16px; }
+            .dash-header { flex-direction: column; gap: 16px; align-items: flex-start; }
+            .dash-logo { margin-bottom: 4px; }
+        }
+
         /* YouTube Overlay */
         .matches-wrapper {
             position: relative;
@@ -291,8 +300,8 @@
             <div class="yt-card">
                 <!-- Replace 'profile.png' with your actual image file once uploaded to the public/ folder! -->
                 <img src="profile.png" alt="Alrightt Ananya" class="yt-avatar" onerror="this.style.display='none'">
-                <div class="yt-title">Support This Platform!</div>
-                <div class="yt-desc">For more SRM related content and updates, please subscribe to my YouTube channel before meeting your roommates. ❤️</div>
+                <div class="yt-title">Subscribe to my channel!</div>
+                <div class="yt-desc">Campus tours, useful college tips and lots of fun content!</div>
                 <a href="https://www.youtube.com/@alrighttananya" target="_blank" rel="noopener noreferrer" class="btn-yt" onclick="dismissYt()">Subscribe & Reveal</a>
                 <button class="btn-yt-skip" onclick="dismissYt()">I've already subscribed, show my roommates</button>
             </div>
