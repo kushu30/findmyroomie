@@ -1,7 +1,7 @@
 const API_BASE =
   location.hostname === "localhost" || location.hostname === "127.0.0.1"
     ? `http://${location.hostname}:4001`
-    : ""; // Same-origin in production (Railway/Render serves both static + API)
+    : "https://findmyroomie-production.up.railway.app";
 
 function getToken() {
   return localStorage.getItem("auth_token");
