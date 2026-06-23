@@ -1,31 +1,26 @@
 const HOSTELS = {
   girls: [
-    "Kopperundevi: AC with attached washroom - 2 sharing",
-    "Kopperundevi: Non-AC with attached washroom - 2 sharing",
-    "ESQ A: Non-AC with attached washroom - 2 sharing",
-    "ESQ A: Non-AC with attached washroom - 3 sharing",
-    "ESQ A: Non-AC with attached washroom - 4 sharing",
-    "ESQ B: Non-AC with attached washroom - 2 sharing",
-    "ESQ B: Non-AC with attached washroom - 3 sharing",
-    "Sannasi C: AC with attached washroom - 3 sharing",
-    "Sannasi C: Non-AC with attached washroom - 3 sharing",
-    "Malligai: Non-AC with common washroom - 2 sharing",
-    "Senbagam: Non-AC with common washroom - 3 sharing",
+    "Kalpana Chawla: AC with attached washroom - 2 sharing",
+    "Kalpana Chawla: AC with attached washroom - 4 sharing",
+    "Meenakshi: AC with attached washroom - 4 sharing (Bunker Cot)",
+    "Meenakshi: Non-AC with attached washroom - 3 sharing",
+    "Thamarai: Non-AC with common washroom - 2 sharing",
+    "Mullai: Non-AC with common washroom - 3 sharing",
     "Senbagam: Non-AC with common washroom - 6 sharing"
   ],
+
   boys: [
-    "Premium Boys: AC with attached washroom - 3 sharing",
+    "N Block: AC with attached washroom - 2 sharing",
+    "N Block: AC with attached washroom - 3 sharing",
+    "Adhiyaman: AC with attached washroom - 2 sharing",
+    "Adhiyaman: AC with attached washroom - 3 sharing",
+    "Adhiyaman: AC with attached washroom - 4 sharing",
+    "Adhiyaman: Non-AC with attached washroom - 3 sharing",
     "Green Pearl (Off-Campus): AC with attached washroom - 3 sharing",
     "Green Pearl (Off-Campus): Non-AC with attached washroom - 3 sharing",
-    "Nelson Mandela: AC with attached washroom - 3 sharing",
-    "Agasthiyar: AC with attached washroom - 4 sharing",
-    "Sannasi A: AC with attached washroom - 3 sharing",
-    "Sannasi A: Non-AC with attached washroom - 3 sharing",
-    "Began: AC with common washroom - 3 sharing",
     "Oori: AC with common washroom - 4 & 5 sharing",
-    "Manoranjitham: Non-AC with common washroom - 3 sharing",
     "Kaari: Non-AC with common washroom - 4 & 5 sharing",
-    "Paari: Non-AC with common washroom - 4 & 5 sharing"
+    "JA Block 2 (Off-Campus): Non-AC with attached washroom - 7 sharing"
   ]
 };
 
