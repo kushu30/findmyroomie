@@ -392,7 +392,13 @@
             if (rmData.success && rmData.roommates?.length) {
                 box.innerHTML = rmData.roommates.map(rm => {
                     const defaultEmailPill = renderPill("email", rm.email);
-                    const otherPills = (rm.contacts || []).map(c => renderPill(c.platform, c.value)).join("");
+                    
+                    // Filter out the default email from the contacts list to prevent duplicates
+                    const otherContacts = (rm.contacts || []).filter(c => 
+                        !(c.platform === "email" && c.value.toLowerCase() === rm.email.toLowerCase())
+                    );
+                    
+                    const otherPills = otherContacts.map(c => renderPill(c.platform, c.value)).join("");
                     const pills = defaultEmailPill + otherPills;
                     
                     const emptyNote = (rm.contacts || []).length === 0 
