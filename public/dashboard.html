@@ -280,7 +280,10 @@
 <div class="dash-wrap">
 
     <header class="dash-header">
-        <div class="dash-logo">findmyroomie.</div>
+        <div style="display: flex; align-items: center; gap: 16px;">
+            <a href="index.html" style="text-decoration: none; color: #52525b; font-weight: 700; font-size: 13px; transition: color 0.15s;" onmouseover="this.style.color='#000'" onmouseout="this.style.color='#52525b'">← Back</a>
+            <a href="index.html" class="dash-logo" style="text-decoration: none; color: inherit;">findmyroomie.</a>
+        </div>
         <div class="dash-actions">
             <button class="btn-action btn-edit" onclick="window.location.href='form.html'">Edit Profile</button>
             <button class="btn-action btn-logout" onclick="logout()">Log Out</button>
