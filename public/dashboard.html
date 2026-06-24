@@ -379,6 +379,7 @@
                 <div class="profile-greeting">Hey, ${u.name}! 👋</div>
                 <div class="profile-email">${u.email}</div>
                 <div class="profile-grid">
+                    <div class="profile-field" style="grid-column:1/-1;"><label>SRM ID</label><span>${u.srmId || "—"}</span></div>
                     <div class="profile-field"><label>Hostel Block</label><span>${u.hostel || "—"}</span></div>
                     <div class="profile-field"><label>Room No.</label><span>${u.room || "—"}</span></div>
                     <div class="profile-field" style="grid-column:1/-1;"><label>Branch</label><span>${u.branch || "—"}</span></div>
@@ -408,10 +409,12 @@
                         ? '<div style="margin-top: 10px; font-size: 0.75rem; color: #f59e0b; font-weight: 700;">Only default email available. Reach out and tell them to add more contacts!</div>' 
                         : '';
 
+                    const branchText = rm.srmId ? `${rm.branch} • ${rm.srmId}` : rm.branch;
+
                     return `
                         <div class="roommate-card">
                             <div class="rm-name">${rm.name}</div>
-                            <div class="rm-branch">${rm.branch}</div>
+                            <div class="rm-branch">${branchText}</div>
                             <div class="contact-pills">${pills}</div>
                             ${emptyNote}
                         </div>`;

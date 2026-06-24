@@ -102,6 +102,7 @@ const contactSchema = new mongoose.Schema({
 const roommateSchema = new mongoose.Schema({
   name: String,
   email: { type: String, lowercase: true, unique: true },
+  srmId: String,
   branch: String,
   hostelType: String,
   hostel: String,
@@ -214,7 +215,7 @@ app.get("/api/me", authenticateToken, async (req, res) => {
 // Save or update profile
 app.post("/api/register", authenticateToken, async (req, res) => {
   try {
-    const { name, branch, hostelType, hostel, room, contacts } = req.body;
+    const { name, branch, hostelType, hostel, room, contacts, srmId } = req.body;
 
     // Input validation
     if (!norm(name)) return res.status(400).json({ success: false, message: "Name is required" });
@@ -222,6 +223,7 @@ app.post("/api/register", authenticateToken, async (req, res) => {
     if (!hostelType) return res.status(400).json({ success: false, message: "Hostel type is required" });
     if (!norm(hostel)) return res.status(400).json({ success: false, message: "Hostel block is required" });
     if (!normUpper(room)) return res.status(400).json({ success: false, message: "Room number is required" });
+    if (!normUpper(srmId)) return res.status(400).json({ success: false, message: "SRM ID is required" });
 
     // Sanitize contacts: filter out entries with empty values
     const cleanContacts = Array.isArray(contacts)
@@ -249,6 +251,13 @@ app.post("/api/register", authenticateToken, async (req, res) => {
       });
     }
 
+    if (currentUser.srmId && normUpper(srmId) !== currentUser.srmId) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "SRM ID cannot be changed once set." 
+      });
+    }
+
     const updatedData = {
       name: norm(name),          // preserve original Google name case, just trim
       branch: normUpper(branch), // branches are all-caps
@@ -258,6 +267,10 @@ app.post("/api/register", authenticateToken, async (req, res) => {
       contacts: cleanContacts,
       registered: true
     };
+
+    if (!currentUser.srmId) {
+      updatedData.srmId = normUpper(srmId);
+    }
 
     const updateQuery = { $set: updatedData };
     if (isHostelChanging) {

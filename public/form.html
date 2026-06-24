@@ -151,6 +151,12 @@
             </div>
 
             <div class="form-group">
+                <label for="srmId">SRM Registration No.</label>
+                <input type="text" id="srmId" name="srmId" placeholder="e.g. RA2311028010118" required autocomplete="off" style="text-transform: uppercase;">
+                <div style="font-size: 0.75rem; color: #71717a; margin-top: 6px; font-weight: 500;">Note: This cannot be changed later. Please double check.</div>
+            </div>
+
+            <div class="form-group">
                 <label for="email">SRM Email</label>
                 <input type="email" id="email" name="email" readonly
                        style="background: #f4f4f5; cursor: not-allowed; color: #52525b; border-color: #d1d5db;">
@@ -339,6 +345,14 @@
                 document.getElementById("name").value  = user.name  || "";
                 document.getElementById("email").value = user.email || "";
 
+                if (user.srmId) {
+                    document.getElementById("srmId").value = user.srmId;
+                    document.getElementById("srmId").readOnly = true;
+                    document.getElementById("srmId").style.background = "#f4f4f5";
+                    document.getElementById("srmId").style.cursor = "not-allowed";
+                    document.getElementById("srmId").style.color = "#52525b";
+                }
+
                 if (user.registered) {
                     document.getElementById("formBadge").textContent = "Edit Profile";
                     submitBtn.textContent = "Save Changes";
@@ -411,9 +425,11 @@
             const hType    = hostelType.value;
             const hostel   = hostelDropdown.value;
             const room     = document.getElementById("room").value.trim();
+            const srmId    = document.getElementById("srmId").value.trim();
 
             // Front-end validation
             if (!name)   { showStatus("Please enter your name."); return; }
+            if (!srmId)  { showStatus("Please enter your SRM Registration No."); return; }
             if (!branch) { showStatus("Please select your branch."); return; }
             if (!hType)  { showStatus("Please select hostel type (Boys/Girls)."); return; }
             if (!hostel) { showStatus("Please select your hostel block."); return; }
@@ -448,7 +464,7 @@
             try {
                 const res = await fetchWithAuth("/api/register", {
                     method: "POST",
-                    body: JSON.stringify({ name, branch, hostelType: hType, hostel, room, contacts })
+                    body: JSON.stringify({ name, srmId, branch, hostelType: hType, hostel, room, contacts })
                 });
                 const result = await res.json();
                 loader.style.display = "none";
