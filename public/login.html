@@ -167,7 +167,7 @@
     <div class="login-card">
         <div class="login-logo">findmyroomie.</div>
         <span class="login-badge">SRM KTR</span>
-        <p class="login-subtitle">Sign in with your <strong>@srmist.edu.in</strong> Google account to find your hostel roommate.</p>
+        <p class="login-subtitle">Sign in with your Google account to find your hostel roommate.</p>
 
         <div class="google-btn-area" id="googleBtnArea">
             <div class="loading-text">Initializing...</div>
@@ -183,7 +183,7 @@
         <div class="dev-section" id="devSection" style="display: none;">
             <div class="dev-label">Dev Mode — No Google Client ID</div>
             <div class="dev-fields">
-                <input type="email" id="devEmail" class="dev-input" placeholder="student@srmist.edu.in" value="testuser@srmist.edu.in">
+                <input type="email" id="devEmail" class="dev-input" placeholder="student@example.com" value="testuser@example.com">
                 <input type="text" id="devName" class="dev-input" placeholder="Full Name" value="Test User">
                 <button type="button" class="dev-btn" id="devBtn">Sign In (Mock)</button>
             </div>
@@ -238,10 +238,7 @@
             const email = document.getElementById("devEmail").value.trim();
             const name  = document.getElementById("devName").value.trim();
 
-            if (!email.endsWith("@srmist.edu.in")) {
-                showError("Only @srmist.edu.in emails are allowed.");
-                return;
-            }
+
             if (!name) {
                 showError("Please enter your name.");
                 return;

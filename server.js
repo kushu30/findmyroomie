@@ -165,13 +165,6 @@ app.post("/api/auth/google", async (req, res) => {
       ? process.env.ADMIN_EMAIL.toLowerCase().split(",").map(e => e.trim()) 
       : [];
 
-    if (!email.endsWith("@srmist.edu.in") && !adminEmails.includes(email)) {
-      return res.status(403).json({
-        success: false,
-        message: "Only @srmist.edu.in email accounts are allowed."
-      });
-    }
-
     // Find or create user
     let user = await Roommate.findOne({ email });
     if (!user) {
