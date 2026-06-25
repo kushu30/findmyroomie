@@ -13,10 +13,15 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGODB_URI;
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-const JWT_SECRET = process.env.JWT_SECRET || "findmyroomie-dev-secret-change-in-prod";
+const JWT_SECRET = process.env.JWT_SECRET || "findmyroomie-default-secret-change-in-prod";
 
 if (!MONGO_URI) {
   console.error("Missing MONGODB_URI");
+  process.exit(1);
+}
+
+if (!GOOGLE_CLIENT_ID) {
+  console.error("Missing GOOGLE_CLIENT_ID");
   process.exit(1);
 }
 
@@ -116,7 +121,7 @@ const roommateSchema = new mongoose.Schema({
 const Roommate = mongoose.model("Roommate", roommateSchema);
 
 // --- Google OAuth client ---
-const oauthClient = GOOGLE_CLIENT_ID ? new OAuth2Client(GOOGLE_CLIENT_ID) : null;
+const oauthClient = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 // ==============================
 // ROUTES
@@ -139,28 +144,14 @@ app.post("/api/auth/google", async (req, res) => {
   try {
     let email, name;
 
-    if (oauthClient) {
-      // Production: verify real Google token
-      const ticket = await oauthClient.verifyIdToken({
-        idToken: credential,
-        audience: GOOGLE_CLIENT_ID,
-      });
-      const payload = ticket.getPayload();
-      email = payload.email.toLowerCase();
-      name = payload.name;
-    } else {
-      // Dev mode: decode mock token (no signature verification)
-      const parts = credential.split(".");
-      if (parts.length !== 3) throw new Error("Invalid token format");
-      // Add padding for base64
-      const padded = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-      const padding = (4 - padded.length % 4) % 4;
-      const payload = JSON.parse(Buffer.from(padded + "=".repeat(padding), "base64").toString("utf8"));
-      email = payload.email?.toLowerCase();
-      name = payload.name;
-      if (!email || !name) throw new Error("Mock token missing email or name fields");
-      console.warn("[DEV MODE] Skipping Google token verification — configure GOOGLE_CLIENT_ID for production.");
-    }
+    // Verify real Google token
+    const ticket = await oauthClient.verifyIdToken({
+      idToken: credential,
+      audience: GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    email = payload.email.toLowerCase();
+    name = payload.name;
 
     const adminEmails = process.env.ADMIN_EMAIL 
       ? process.env.ADMIN_EMAIL.toLowerCase().split(",").map(e => e.trim()) 

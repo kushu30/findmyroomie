@@ -77,69 +77,7 @@
             color: #6b7280;
             font-weight: 500;
         }
-        /* Dev fallback */
-        .dev-section {
-            margin-top: 24px;
-            padding-top: 20px;
-            border-top: 2px dashed #e4e4e7;
-        }
-        .dev-label {
-            font-size: 0.75rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #ef4444;
-            margin-bottom: 12px;
-        }
-        .dev-fields {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .dev-input {
-            width: 100%;
-            padding: 10px 14px;
-            border: 2px solid #d1d5db;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            font-family: inherit;
-            font-weight: 500;
-            outline: none;
-            box-sizing: border-box;
-        }
-        .dev-input:focus {
-            border-color: #000;
-        }
-        .dev-btn {
-            width: 100%;
-            padding: 12px;
-            background: #000;
-            color: white;
-            border: 2px solid #000;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            font-weight: 800;
-            font-family: inherit;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: 4px 4px 0px #ef4444;
-            transition: all 0.1s;
-        }
-        .dev-btn:hover {
-            transform: translate(-2px, -2px);
-            box-shadow: 6px 6px 0px #ef4444;
-        }
-        .dev-btn:active {
-            transform: translate(2px, 2px);
-            box-shadow: none;
-        }
-        .dev-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: 4px 4px 0px #d1d5db;
-        }
+
         .error-msg {
             color: #ef4444;
             font-size: 0.85rem;
@@ -179,15 +117,7 @@
             We don't collect passwords or personal information. We use Google Login for secure, OTP-free verification.
         </p>
 
-        <!-- Developer fallback — shown only when no Google Client ID is configured -->
-        <div class="dev-section" id="devSection" style="display: none;">
-            <div class="dev-label">Dev Mode — No Google Client ID</div>
-            <div class="dev-fields">
-                <input type="email" id="devEmail" class="dev-input" placeholder="student@example.com" value="testuser@example.com">
-                <input type="text" id="devName" class="dev-input" placeholder="Full Name" value="Test User">
-                <button type="button" class="dev-btn" id="devBtn">Sign In (Mock)</button>
-            </div>
-        </div>
+
     </div>
 
     <script src="app.js"></script>
@@ -199,8 +129,6 @@
 
         const errorMsg   = document.getElementById("errorMsg");
         const googleArea = document.getElementById("googleBtnArea");
-        const devSection = document.getElementById("devSection");
-        const devBtn     = document.getElementById("devBtn");
 
         function showError(msg) {
             errorMsg.textContent = msg;
@@ -232,47 +160,7 @@
             }
         }
 
-        // Dev mode mock sign-in
-        devBtn.onclick = async () => {
-            errorMsg.style.display = "none";
-            const email = document.getElementById("devEmail").value.trim();
-            const name  = document.getElementById("devName").value.trim();
 
-
-            if (!name) {
-                showError("Please enter your name.");
-                return;
-            }
-
-            devBtn.disabled = true;
-            devBtn.textContent = "Signing in...";
-
-            try {
-                // Build a mock 3-part JWT-like token the server can decode without signature verification
-                const header  = btoa(JSON.stringify({ alg: "none" }));
-                const payload = btoa(JSON.stringify({ email, name }));
-                const mockCredential = `${header}.${payload}.dev-signature`;
-
-                const res  = await fetch(`${API_BASE}/api/auth/google`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ credential: mockCredential })
-                });
-                const data = await res.json();
-
-                if (data.success) {
-                    await handleAuthSuccess(data.token, data.registered);
-                } else {
-                    showError(data.message || "Sign-in failed.");
-                    devBtn.disabled = false;
-                    devBtn.textContent = "Sign In (Mock)";
-                }
-            } catch {
-                showError("Network error. Is the server running?");
-                devBtn.disabled = false;
-                devBtn.textContent = "Sign In (Mock)";
-            }
-        };
 
         // Initialize — fetch config then setup correct login method
         async function initAuth() {
@@ -296,12 +184,10 @@
                     });
                 } else {
                     googleArea.innerHTML = '<span class="google-not-configured">Google Sign-In not configured.</span>';
-                    devSection.style.display = "block";
                 }
             } catch (err) {
                 console.error("Config fetch failed:", err);
                 googleArea.innerHTML = '<span class="google-not-configured">Could not load config.</span>';
-                devSection.style.display = "block";
             }
         }
 
