@@ -9,11 +9,16 @@ const jwt = require("jsonwebtoken");
 const { OAuth2Client } = require("google-auth-library");
 
 const app = express();
+app.set("trust proxy", true);
 
 const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGODB_URI;
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-const JWT_SECRET = process.env.JWT_SECRET || "findmyroomie-default-secret-change-in-prod";
+if (!process.env.JWT_SECRET) {
+  console.error("Missing JWT_SECRET");
+  process.exit(1);
+}
+const JWT_SECRET = process.env.JWT_SECRET;
 
 if (!MONGO_URI) {
   console.error("Missing MONGODB_URI");
@@ -84,7 +89,10 @@ const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 150,
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  validate: {
+    xForwardedForHeader: false,
+  }
 });
 app.use("/api", apiLimiter);
 
@@ -126,6 +134,14 @@ const oauthClient = new OAuth2Client(GOOGLE_CLIENT_ID);
 // ==============================
 // ROUTES
 // ==============================
+
+app.get("/", (req, res) => {
+  res.send("FindMyRoomie API running");
+});
+
+app.get("/health", (req, res) => {
+  res.json({ status: "ok" });
+});
 
 // Config endpoint — no DB needed, safe to always call
 app.get("/api/config", (req, res) => {
@@ -184,8 +200,11 @@ app.post("/api/auth/google", async (req, res) => {
       email: user.email
     });
   } catch (err) {
-    console.error("Google auth failed:", err.message);
-    res.status(401).json({ success: false, message: "Authentication failed. " + err.message });
+    console.error(err);
+    res.status(401).json({
+      success: false,
+      message: "Authentication failed"
+    });
   }
 });
 
@@ -312,6 +331,7 @@ app.get("/api/roommates", authenticateToken, async (req, res) => {
   }
 });
 
+console.log("Trust proxy:", app.get("trust proxy"));
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });
